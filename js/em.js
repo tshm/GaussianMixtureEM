@@ -4,7 +4,7 @@
 // s: initial deviations
 var EM = function( x, K, m0, s0, p0 ) {
   var N = x.length,
-			D = 2;  // dimension
+			D = 1;  // dimension
 	// model structure initialization
 	var m = m0, s = s0, p;
 	var psum = p0.reduce(function(p, c) { return p + c; }, 0.0);
@@ -25,17 +25,18 @@ var EM = function( x, K, m0, s0, p0 ) {
 	};
   
 	// Expectation step
+	// p(k|n) = p[k] * g(x[n],m[k],s[k]) / SUM_k( p[k] * g(x[n],m[k],s[k]) )
 	var Expectation = function(p, m, s) {
-		var wp = [], n; 
-		for (var k = 0; k < K; k++) {
+		var wp = [], n, k; 
+		for (n = 0; n < N; n++) {
 			var wpsum = 0;
-			wp[k] = [];
-			for (n = 0; n < N; n++) {
-				wp[k][n] = p[k] * g(x[n], m[k], s[k]);
-				wpsum += wp[k][n];
+			wp[n] = [];
+			for (k = 0; k < K; k++) {
+				wp[n][k] = p[k] * g(x[n], m[k], s[k]);
+				wpsum += wp[n][k];
 			}
-			for (n = 0; n < N; n++) {
-				pmem[k][n] = wp[k][n] / wpsum;
+			for (k = 0; k < K; k++) {
+				pmem[k][n] = wp[n][k] / wpsum;
 			}
 		}
 	};
@@ -54,22 +55,43 @@ var EM = function( x, K, m0, s0, p0 ) {
 				wsqsum += pk[n] * (x[n] - mk) * (x[n] - mk);
 			}
 			m[k] = mk;
-			s[k] = Math.sqrt( wsqsum / psum ) / D;
-			p[k] = psum / K;
+			s[k] = Math.sqrt( wsqsum / psum / D );
+			p[k] = psum / N;
 		}
 		return {m:m, s:s, p:p};
 	};
 
-	console.log( g(3900, 3900, 100) );
+  function showsump(pmem) {
+	var sump0 = 0;
+	var sump1 = 0;
+	var sump2 = 0;
+	for (var n = 0; n < N; n++) {
+		sump0 += pmem[0][n];
+		sump1 += pmem[1][n];
+		sump2 += pmem[2][n];
+	}
+	console.log("sump", [sump0/N, sump1/N, sump2/N, (sump0+sump1+sump2)/N] );
+	}
+
+  // difference evaluation func
+	var diff = function(m0, m1) {
+		var k, sqsum = 0;
+		for (k = 0; k < K; k++) {
+			sqsum += ( m0[k] - m1[k] ) * ( m0[k] - m1[k] );
+		}
+		console.log( sqsum );
+		return Math.sqrt( sqsum );
+	};
 
 	// iteration
-	for (i=0; i<10; i++) {
+	for (i=0; i<10000; i++) {
 		Expectation(p, m, s);
-		console.log(pmem);
 		var res = Maximization();
+		if (diff(m, res.m) < 10) break;
 		p = res.p;
 		m = res.m;
 		s = res.s;
+		console.log([i, m]);
 	}
 	return {m:m, s:s, p:p};
 };
