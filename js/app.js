@@ -44,7 +44,8 @@ app.controller('MainCtrl', function( $scope ) {
 				bars: { barWidth: binsize }
 				//lines: { show: true },
 				//points: { show: true }
-			}
+			},
+			grid: { hoverable: true }
 		};
 		var gg = [], means = [];
 		if ($scope.result) {
