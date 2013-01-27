@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MD5 Calculator</title>
+  <title>EM for Gaussian Mixture</title>
   <link rel="stylesheet" href="lib/jquery-ui.css"/>
   <link rel="stylesheet" href="lib/bootstrap.css"/>
   <script src="lib/html5shiv.js"></script>
@@ -12,12 +12,35 @@
   <script src="lib/jquery-ui.js"></script>
   <script src="lib/angular.js"></script>
   <script src="lib/bootstrap.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.7/jquery.flot.min.js"></script>
   <script src="js/app.js"></script>
   <script src="js/em.js"></script>
+	<style>
+.hidden { display: none; }
+	</style>
 </head>
 <body>
 	<div class="container" ng-controller="MainCtrl" ng-init="debug = true">
-		<pre ng-show="debug">{{ res | json }}</pre>
+		<h1>EM : {{ filelist[0].name }}</h1>
+		<input type="file" name="filelist" filelist-bind multiple class="hidden"/>
+    <div id="placeholder" drop-area="filelist" style="width:600px;height:300px;"></div>
+		<div id="histogram_parameters">
+			<label>binsize: <input ng-model="binsize"/></label>
+		</div>
+		<div id="result">
+			<table class="table">
+				<thead><tr><th>#</th><th>m</th><th>s</th><th>p</th></tr></thead>
+				<tbody>
+					<tr ng-repeat="m in result.m">
+						<td>{{ $index }}</td>
+						<td>{{ result.m[ $index ] }}</td>
+						<td>{{ result.s[ $index ] }}</td>
+						<td>{{ result.p[ $index ] }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<pre ng-show="debug">{{ data | json }}</pre>
 	</div>
 </body>
 </html>
