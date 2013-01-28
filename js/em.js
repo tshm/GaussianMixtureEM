@@ -91,10 +91,9 @@ var EM = function( x, K, m0, s0, p0 ) {
 			sum_pkg = 0.0; 
 			for (k = 0; k < K; k++) {
 				sum_pkg += p[k] * g(x[n], m[k], s[k]);
-				//var aa = p[k] * g(x[n], m[k], s[k]);
-				//console.log([k, n, p[k], x[n], m[k], s[k]], aa, sum_pkg);
-				if (!sum_pkg) return;
 			}
+			if (!sum_pkg) continue;
+			//console.log(['sum_pkg: ', sum_pkg]);
 			prod_pkg += Math.log( sum_pkg );
 		}
 		return prod_pkg;
@@ -107,12 +106,12 @@ var EM = function( x, K, m0, s0, p0 ) {
 		var L = LogLikelihood(m, s, p),
 			res = Maximization();
 		console.log(i, " LogLikelihood: ", LogLikelihood(m, s, p));
-		if ( !isFinite(L) || Math.abs(L - L_old) < 1 ) break;
+		if ( !isFinite(L) || Math.abs(L - L_old) < 0.1 ) break;
 		L_old = L;
 		p = res.p;
 		m = res.m;
 		s = res.s;
 		//console.log([i, m]);
 	}
-	return {m:m, s:s, p:p};
+	return {m:m, s:s, p:p, L:L_old};
 };
