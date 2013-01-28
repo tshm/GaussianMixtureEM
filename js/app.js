@@ -16,7 +16,7 @@ var hist = function(data, min, binsize, N) {
 	return bin;
 };
 
-var estimateInitialParam = function(h) {
+var estimateInitialParam = function(h, K) {
   var max_pos = 0, max = 0;
 	for (var i = 0; i < h.length; i++) {
 		if ( max < h[i][1] ) {
@@ -24,15 +24,24 @@ var estimateInitialParam = function(h) {
 			max_pos = h[i][0];
 		}
 	}
-	return [max_pos - 500, max_pos, max_pos + 500];
-};
-
-var D = 1, gconst = 1 / Math.pow( Math.sqrt(2 * Math.PI), D );
-var g = function( v, m, s ) {
-	return gconst / Math.pow(s, D) * Math.exp( -0.5 * Math.pow((v - m)/s, 2) );
+	return [
+		{m: max_pos - 500, s:30, p:1},
+		{m: max_pos,       s:30, p:1},
+		{m: max_pos + 500, s:30, p:1}
+	];
 };
 
 app.controller('MainCtrl', function( $scope ) {
+
+  $scope.iterate = function() {
+		$scope.em.run_iteration();
+		$scope.estimate();
+	};
+
+  $scope.run = function() {
+		$scope.em.run();
+		$scope.estimate();
+	};
 
   $scope.data = [
 4391,
@@ -135,7 +144,7 @@ app.controller('MainCtrl', function( $scope ) {
 		return hist($scope.data, min - 2 * binsize, binsize, N);
 	};
 
-	$scope.draw_graph = function(h) {
+	$scope.draw_graph = function(h, model) {
 		var min = h[0][0], max = h[h.length-1][0], binsize = (max-min)/(h.length-1);
 		var options = {
 			series: {
@@ -146,55 +155,58 @@ app.controller('MainCtrl', function( $scope ) {
 			grid: { hoverable: true }
 		};
 		var gg = [], means = [];
-		if ($scope.result) {
+		if (model) {
 			// Gaussian mixture graph
-			var dist = $scope.result;
 			for (var x = min; x < max; x+=0.1*binsize) {
 				var f = 0.0;
-				for (k=0; k < $scope.result.m.length; k++) {
-					f += dist.p[k] * g(x, dist.m[k], dist.s[k]);
+				for (k=0; k < model.length; k++) {
+					f += model[k].p * $scope.em.g(x, model[k].m, model[k].s);
 				}
 				gg.push([x, binsize * f]);
 			}
 			// means
-			for (k=0; k < dist.m.length; k++) {
-				means[k] = [dist.m[k], 0];
+			for (k=0; k < model.length; k++) {
+				means[k] = [model[k].m, 0];
 			}
 		}
 		var graphdata = [{data: h, bars: {show:true}}, gg, {points:{show:true}, data:means} ];
 		$.plot($("#placeholder"), graphdata, options);
 	};
 
-	$scope.update = function(m0) {
-		var h = $scope.get_histogram( $scope.binsize );
-		if (m0) {
-			m = m0.map(function(v) { return v.v; });
+	$scope.estimate = function() {
+		//$scope.em.run();
+		$scope.result = $scope.em.get_result();
+		console.log( $scope.result );
+		$scope.draw_graph( $scope.h, $scope.result.model );
+	};
+
+	$scope.update = function(model0) {
+		var model;
+		$scope.h = $scope.get_histogram( $scope.binsize );
+		if (model0) {
+			model = angular.copy(model0);
 		} else {
-			m = estimateInitialParam(h);
-			$scope.m0 = [];
-			for (var i = 0; i < m.length; i++) {
-				$scope.m0[i] = {v : m[i]};
-			}
+			model = estimateInitialParam($scope.h);
+			$scope.model0 = angular.copy(model);
 		}
-		var s = [], p = [];
-		for (var i = 0; i < m.length; i++) {
-			s[i] = 30;
-			p[i] = 1;
+		$scope.em = new GMEM($scope.data, model);
+		$scope.draw_graph( $scope.h, model );
+		if (!$scope.step) {
+			$scope.em.run();
+			$scope.estimate();
 		}
-		$scope.result = EM($scope.data, m.length, m, s, p);
-		$scope.draw_graph(h);
 	};
 
 	$scope.remove = function(index) {
-		delete $scope.m0[index];
-		$scope.m0.splice(index, 1);
+		delete $scope.model0[index];
+		$scope.model0.splice(index, 1);
 	};
 
 	$scope.$watch('data', function(data) {
 		$scope.update();
 	});
 
-  //$scope.result = EM($scope.data, 3, [3500, 4000, 4500], [30,30,30], [1,1,1]);
+  //$scope.result = GMEM($scope.data, 3, [3500, 4000, 4500], [30,30,30], [1,1,1]);
   $scope.files = [];
 
   $scope.$watch( 'filelist', function( filelist ) {
