@@ -1,3 +1,6 @@
+// console.log
+window.console = window.console || {log: function(){}};
+
 // handle missing window.console.log cases.
 var app = angular.module('app', []);
 
