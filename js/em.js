@@ -15,12 +15,16 @@ GMEM = (function() {
 		// model structure initialization
 		this.m = [];
 		this.s = [];
+		this.p = [];
+		var psum = 0;
 		for (k = 0; k < this.K; k++) {
+			psum += model[k].p;
 			this.m[k] = model[k].m;
 			this.s[k] = model[k].s;
 		}
-		var psum = model.reduce(function(p, c) { return p + c.p; }, 0.0);
-		this.p = model.map(function(v) { return v.p / psum; });
+		for (k = 0; k < this.K; k++) {
+			this.p[k] = model[k].p / psum;
+		}
 		// membership probability initialization
 		this.pmem = [];
 		var normp = 1.0 / this.K;

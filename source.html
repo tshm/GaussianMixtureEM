@@ -16,7 +16,11 @@
   </head>
   <body>
     <div class="container" ng-controller="MainCtrl" ng-init="debug = true">
-      <h2>EM[{{ result.L | number:2 }}] : {{ filelist[0].name }}</h2>
+			<h2>EM</h2>
+			<div class="well">
+				<span ng-show="result.L ">LogLikelihood : {{ result.L | number:2 }}</span><br>
+				<span ng-show="filelist[0]">File: {{ filelist[0].name }}</span>
+			</div>
       <input type="file" name="filelist" filelist-bind multiple ng-hide="true"/>
       <div ng-init="step = false" ng-show="step">
         <button ng-click="iterate()">Step</button>
@@ -27,8 +31,8 @@
       <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
         <fieldset>
           <label>binsize: <input ng-model="binsize"/></label>
-          <button ng-click="model0.push({m:0,s:30,p:1})">add cluster</button>
-          <input type="submit"/>
+          <button ng-click="model0.push({m:0,s:30,p:1})" class="btn">add cluster</button>
+          <input type="submit" class="btn btn-success"/>
           <div>
             <table class="table table-striped">
               <thead>
@@ -54,10 +58,10 @@
       </form>
       <hr>
       <h3>copy and paste data</h3>
-      <form ng-submit="updateRawData()">
+      <form ng-submit="updateRawData()" class="form well">
         <textarea ng-model="rawdata"></textarea>
-        <input type="submit"/>
-        <button ng-click="clearRawData()">clear raw data</button>
+        <input type="submit" class="btn btn-info"/>
+        <button ng-click="clearRawData()" class="btn">clear raw data</button>
       </form>
     </div>
   </body>

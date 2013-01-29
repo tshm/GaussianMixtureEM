@@ -11,7 +11,7 @@ var hist = function(data, min, binsize, N) {
 		bin[i] = [min1 + i*binsize, 0];
 	angular.forEach(data, function(v) {
 		var index = Math.floor( ( v - min1 ) / binsize );
-		index = ( index < 0 ? 0 : index );
+		index = ( index < 0   ?   0 : index );
 		index = ( index > N-1 ? N-1 : index );
 		bin[index][1] += inc;
 	});
@@ -27,6 +27,12 @@ var estimateInitialParam = function(h, K) {
 			max_pos = h[i][0];
 		}
 	}
+	var center = 0.5 * (h[0][0] + h[h.length-1][0]),
+		range = ( h[h.length-1][0] - h[0][0] ) / 8.0,
+		pos = parseInt( (max_pos - center) / range, 10 );
+	console.log( [center, range, pos, max_pos] );
+	if (1 <= pos)  max_pos -= 500;
+	if (pos <= -1) max_pos += 500;
 	return [
 		{m: max_pos - 500, s:30, p:1},
 		{m: max_pos,       s:30, p:1},
@@ -206,6 +212,17 @@ app.controller('MainCtrl', function( $scope ) {
 	};
 
 	$scope.$watch('data', function(data) {
+		if (!data) return;
+		$scope.binsize = (function(data) {
+			var N = data.length,
+			k = Math.ceil(1 + Math.log(N, 2));
+			var min = data[0], max = data[0];
+			for (var i = 0; i < N; i++) {
+				if (data[i] < min) min = data[i];
+				if (data[i] > max) max = data[i];
+			}
+			return Math.round( (max - min) / Math.sqrt(N) / 3 );
+		})(data);
 		$scope.update();
 	});
 

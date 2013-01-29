@@ -1,10 +1,11 @@
+# Build script to create offline version and CDN linked version of the html file.
 require 'rubygems'
-SRC = 'index.html'
+SRC = 'source.html'
 JS = FileList['js/*.js']
 EXTERN = 'extern.js'
 JSOUT = 'tmp.out.js'
-OUT_ONLINE  = 'emjs.html'
-OUT_OFFLINE = 'emjs_offline.html'
+OUT_ONLINE  = 'index.html'
+OUT_OFFLINE = 'offline.html'
 COMPILER = Dir['**/*.jar'][0]
 
 CDNJS = "http://cdnjs.cloudflare.com/ajax/libs/"
