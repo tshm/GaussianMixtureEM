@@ -7,11 +7,14 @@
   <meta charset="utf-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
   <title>EM for Gaussian Mixture</title>
-  <title></title>
   <meta name="description" content=""/>
   <meta name="viewport" content="width=device-width"/>
   <link rel="stylesheet" href="styles/bootstrap.css"/>
   <link rel="stylesheet" href="styles/main.css"/>
+	<style>
+		#droparea { border: 3px dashed; color: #EEE; padding: 20px; }
+		#plot { width:600px; height:300px; }
+	</style>
 </head>
 <body ng-app="emjsApp">
 <!--[if lt IE 7]>
@@ -34,7 +37,9 @@
     <button ng-click="iterate()">Step</button>
     <button ng-click="run()">RUN</button>
   </div>
-  <div id="placeholder" drop-area="filelist" style="width:600px;height:300px;"></div>
+  <div drop-area="filelist" id="droparea">
+    <div id="plot" flot="graphdata" flot-options="options"></div>
+  </div>
   <hr>
   <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
     <fieldset>

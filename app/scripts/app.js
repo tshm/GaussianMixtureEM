@@ -156,14 +156,6 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
 
   $scope.draw_graph = function(h, model) {
     var min = h[0][0], max = h[h.length-1][0], binsize = (max-min)/(h.length-1);
-    var options = {
-      series: {
-        bars: { barWidth: binsize }
-        //lines: { show: true },
-        //points: { show: true }
-      },
-      grid: { hoverable: true }
-    };
     var gg = [], means = [];
     if (model) {
       // Gaussian mixture graph
@@ -179,8 +171,19 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
         means[k] = [model[k].m, 0];
       }
     }
-    var graphdata = [{data: h, bars: {show:true}}, gg, {points:{show:true}, data:means} ];
-    $.plot($("#placeholder"), graphdata, options);
+    $scope.graphdata = [
+      {data: h, bars: {show:true}},
+      gg,
+      {points:{show:true}, data:means}
+    ];
+    $scope.options = {
+      series: {
+        bars: { barWidth: binsize }
+        //lines: { show: true },
+        //points: { show: true }
+      },
+      grid: { hoverable: true }
+    };
   };
 
   $scope.estimate = function() {
@@ -275,8 +278,9 @@ app.directive('dropArea', function() {
       event.stopPropagation();
       event.preventDefault();
       scope.$apply(function( scope ) {
-        console.log( event.originalEvent.dataTransfer.files );
-        scope[ attrs.dropArea ] = event.originalEvent.dataTransfer.files;
+        console.log(event);
+        //console.log( event.dataTransfer.files,  attrs.dropArea );
+        scope[ attrs.dropArea ] = event.dataTransfer.files;
       });
     });
     elm.bind('click', function() {
@@ -288,10 +292,25 @@ app.directive('dropArea', function() {
 app.directive("filelistBind", function() {
   return function( scope, elm, attrs ) {
     elm.bind("change", function( evt ) {
-      //console.log( evt );
+      console.log( evt );
       scope.$apply(function( scope ) {
         scope[ attrs.name ] = evt.target.files;
       });
     });
+  };
+});
+
+app.directive("flot", function() {
+  return {
+    scope: { data: '=flot', options: '=flotOptions' },
+    replace: false,
+    link: function( scope, elm, attrs ) {
+      var updateplot = function() {
+        //console.log([scope.data, scope.options]);
+        $.plot( elm, scope.data, scope.options );
+      };
+      scope.$watch('data',   updateplot);
+      scope.$watch('options',updateplot);
+    }
   };
 });
