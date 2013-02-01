@@ -1,3 +1,4 @@
+/*global require:true, process:true */
 module.exports = function( grunt ) {
   'use strict';
 
@@ -182,6 +183,8 @@ module.exports = function( grunt ) {
       done(err);
     });
   });
+
+  grunt.registerTask('buildall', ['build', 'offline']);
 
   grunt.registerTask('offline', 'build offline page', function() {
     process.chdir('dist');
