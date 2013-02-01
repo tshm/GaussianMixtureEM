@@ -168,8 +168,8 @@ module.exports = function( grunt ) {
 
     offline: {
       options: {
-        dest: 'app/index_offline.html',
-        source: 'app/index.html'
+        dest: 'index_offline.html',
+        source: 'index.html'
       }
     }
   });
@@ -184,6 +184,7 @@ module.exports = function( grunt ) {
   });
 
   grunt.registerTask('offline', 'build offline page', function() {
+    process.chdir('dist');
     var lines, options;
     options = this.options();
     lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
