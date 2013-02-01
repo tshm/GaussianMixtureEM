@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>EM for Gaussian Mixture</title>
+  <title></title>
+  <meta name="description" content=""/>
+  <meta name="viewport" content="width=device-width"/>
+  <link rel="stylesheet" href="styles/bootstrap.css"/>
+  <link rel="stylesheet" href="styles/main.css"/>
+</head>
+<body ng-app="emjsApp">
+<!--[if lt IE 7]>
+  <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="scripts/vendor/es5-shim.min.js"></script>
+  <script src="scripts/vendor/json3.min.js"></script>
+<![endif]-->
+
+<div class="container" ng-controller="MainCtrl" ng-init="debug = true">
+  <h2>Expectation Maximization for Gaussian Mixture</h2>
+  <div class="well">
+    <span ng-show="result.L ">LogLikelihood : {{ result.L | number:2 }}</span><br>
+    <span ng-show="filelist[0]">File: {{ filelist[0].name }}</span>
+  </div>
+  <input type="file" name="filelist" filelist-bind multiple ng-hide="true"/>
+  <div ng-init="step = false" ng-show="step">
+    <button ng-click="iterate()">Step</button>
+    <button ng-click="run()">RUN</button>
+  </div>
+  <div id="placeholder" drop-area="filelist" style="width:600px;height:300px;"></div>
+  <hr>
+  <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
+    <fieldset>
+      <label>binsize: <input ng-model="binsize"/></label>
+      <button ng-click="model0.push({m:0,s:30,p:1})" class="btn">add cluster</button>
+      <input type="submit" class="btn btn-success"/>
+      <div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>cluster ID</th><th>m_init</th><th>m</th><th>s</th><th>p</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="m in result.model">
+              <td>{{ $index }}</td>
+              <td>
+                <label><input ng-model="model0[$index].m" class="input input-small"/></label>
+                <a ng-click="remove($index)">&times;</a>
+              </td>
+              <td>{{ m.m | number:0 }}</td>
+              <td>{{ m.s | number:0 }}</td>
+              <td>{{ m.p | number:2 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </fieldset>
+  </form>
+  <hr>
+  <h3>copy and paste data</h3>
+  <form ng-submit="updateRawData()" class="form well">
+    <textarea ng-model="rawdata"></textarea>
+    <input type="submit" class="btn btn-info"/>
+    <button ng-click="clearRawData()" class="btn">clear raw data</button>
+  </form>
+</div>
+
+<script src="scripts/vendor/angular.js"></script>
+<script src="components/jquery/jquery.js"></script>
+<script src="components/flot/jquery.flot.js"></script>
+
+<!-- build:js scripts/scripts.js -->
+<script src="scripts/GMEM.js"></script>
+<script src="scripts/app.js"></script>
+<!-- endbuild -->
+
+<!-- Google Analytics -->
+<script>
+  var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+</body>
+</html>
