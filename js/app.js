@@ -1,5 +1,6 @@
 // console.log
 window.console = window.console || {log: function(){}};
+console.log( window.GMEM );
 
 // handle missing window.console.log cases.
 var app = angular.module('app', []);
@@ -199,6 +200,7 @@ app.controller('MainCtrl', function( $scope ) {
 			$scope.model0 = angular.copy(model);
 		}
 		$scope.em = new GMEM($scope.data, model);
+		console.log( $scope.em );
 		$scope.draw_graph( $scope.h, model );
 		if (!$scope.step) {
 			$scope.em.run();
