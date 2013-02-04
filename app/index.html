@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="styles/main.css"/>
   <style>
 #plot { width:600px; height:300px; }
+input:focus { background-color: yellow; }
   </style>
 </head>
 <body ng-app="emjsApp">
@@ -40,7 +41,7 @@
 
   <div class="row">
     <!-- plotting area -->
-    <div class="span9" id="plot" flot="graphdata" flot-options="options"></div>
+    <div class="span9" id="plot" flot="graphdata" flot-options="options" click="plotclick(args)"></div>
     <!-- raw data area -->
     <div class="span3" drop-area="filelist" class="well">
       <form class="form">
@@ -54,8 +55,8 @@
 
   <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
     <fieldset>
-      <label>binsize: <input ng-model="binsize"/></label>
-      <button ng-click="model0.push({m:0,s:30,p:1})" class="btn">add cluster</button>
+      <label>binsize: <input type="text" ng-model="binsize"/></label>
+      <button ng-click="model0.push({m:0,s:30,p:1,focus:1})" class="btn">add cluster</button>
       <input type="submit" class="btn btn-success"/>
       <div>
         <table class="table table-striped">
@@ -68,7 +69,7 @@
             <tr ng-repeat="m in result.model">
               <td>{{ $index }}</td>
               <td>
-                <label><input ng-model="model0[$index].m" class="input input-small"/></label>
+                <input type="text" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"/>
                 <a ng-click="remove($index)">&times;</a>
               </td>
               <td>{{ m.m | number:0 }}</td>

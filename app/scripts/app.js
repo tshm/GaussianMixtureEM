@@ -173,7 +173,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     }
     $scope.graphdata = [
       {data: h, bars: {show:true}},
-      gg,
+      {data: gg, lines:{show:true}},
       {points:{show:true}, data:means}
     ];
     $scope.options = {
@@ -182,7 +182,8 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
         //lines: { show: true },
         //points: { show: true }
       },
-      grid: { hoverable: true }
+      //selection: {mode: 'x'},
+      grid: { hoverable: true, clickable: true }
     };
   };
 
@@ -214,6 +215,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
   $scope.remove = function(index) {
     delete $scope.model0[index];
     $scope.model0.splice(index, 1);
+    $scope.update( $scope.model0 );
   };
 
   $scope.$watch('data', function(data) {
@@ -253,6 +255,20 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
       $scope.files.push( file );
     }
   }, true);
+
+  $scope.plotclick = function( args ) {
+    console.log( args );
+    if ( args.seriesIndex === 2 ) {
+      $scope.model0[args.dataIndex].focus = true;
+      $scope.$apply();
+    } else {
+      $scope.model0.forEach(function(m, i) {
+        if ( !m.focus ) return;
+        $scope.model0[i].m = args.x;
+      });
+      $scope.update( $scope.model0 );
+    }
+  };
 
 }]);  // Main Controller
 
@@ -300,7 +316,7 @@ app.directive("fileSelect", function() {
 
 app.directive("flot", function() {
   return {
-    scope: { data: '=flot', options: '=flotOptions' },
+    scope: { data: '=flot', options: '=flotOptions', click: '&' },
     replace: false,
     link: function( scope, elm, attrs ) {
       var updateplot = function() {
@@ -309,6 +325,20 @@ app.directive("flot", function() {
       };
       scope.$watch('data',   updateplot);
       scope.$watch('options',updateplot);
+      //
+      $(elm).bind('plotclick', function( event, pos, item ) {
+        //console.log([event, pos, item]);
+        var args = {x: pos.x, y: pos.y};
+        if ( item ) {
+          args.dataIndex = item.dataIndex;
+          args.seriesIndex = item.seriesIndex;
+        }
+        scope.click({args: args});
+      });
+      //
+      $(elm).bind('plotselected', function( event, ranges ) {
+        console.log([ event, ranges ]);
+      });
     }
   };
 });
@@ -331,3 +361,23 @@ app.directive('plotDataInputField', function() {
     }
   };
 });
+
+app.directive('focus', ['$timeout', function($timeout) {
+  return function( scope, elem, attrs ) {
+    elem.bind('focus', function() {
+      if ( true !== scope.$eval( attrs.focus ) ) {
+        scope.$apply( attrs.focus + ' = true' );
+      }
+    });
+    elem.bind('blur', function() {
+      if ( false !== scope.$eval( attrs.focus ) ) {
+        $timeout(function() {
+          scope.$apply( attrs.focus + ' = false' );
+        }, 500, false);
+      }
+    });
+    scope.$watch(attrs.focus, function(val) {
+      $(elem).trigger( val ? 'focus' : 'blur' );
+    });
+  };
+}]);
