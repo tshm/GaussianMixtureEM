@@ -11,10 +11,9 @@
   <meta name="viewport" content="width=device-width"/>
   <link rel="stylesheet" href="styles/bootstrap.css"/>
   <link rel="stylesheet" href="styles/main.css"/>
-	<style>
-		#droparea { border: 3px dashed; color: #EEE; padding: 20px; }
-		#plot { width:600px; height:300px; }
-	</style>
+  <style>
+#plot { width:600px; height:300px; }
+  </style>
 </head>
 <body ng-app="emjsApp">
 <!--[if lt IE 7]>
@@ -27,20 +26,32 @@
 <![endif]-->
 
 <div class="container" ng-controller="MainCtrl" ng-init="debug = true">
+
   <h2>Expectation Maximization for Gaussian Mixture</h2>
   <div class="well">
     <span ng-show="result.L ">LogLikelihood : {{ result.L | number:2 }}</span><br>
     <span ng-show="filelist[0]">File: {{ filelist[0].name }}</span>
   </div>
-  <input type="file" name="filelist" filelist-bind multiple ng-hide="true"/>
+
   <div ng-init="step = false" ng-show="step">
     <button ng-click="iterate()">Step</button>
     <button ng-click="run()">RUN</button>
   </div>
-  <div drop-area="filelist" id="droparea">
-    <div id="plot" flot="graphdata" flot-options="options"></div>
+
+  <div class="row">
+    <!-- plotting area -->
+    <div class="span9" id="plot" flot="graphdata" flot-options="options"></div>
+    <!-- raw data area -->
+    <div class="span3" drop-area="filelist" class="well">
+      <form class="form">
+        <div plot-data-input-field ng-model="data"></div>
+        <button class="btn" file-select="filelist">select file</button>
+      </form>
+    </div>
   </div>
+
   <hr>
+
   <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
     <fieldset>
       <label>binsize: <input ng-model="binsize"/></label>
@@ -69,13 +80,7 @@
       </div>
     </fieldset>
   </form>
-  <hr>
-  <h3>copy and paste data</h3>
-  <form ng-submit="updateRawData()" class="form well">
-    <textarea ng-model="rawdata"></textarea>
-    <input type="submit" class="btn btn-info"/>
-    <button ng-click="clearRawData()" class="btn">clear raw data</button>
-  </form>
+
 </div>
 
 <!-- build:js scripts/vendors.js -->

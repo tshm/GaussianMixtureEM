@@ -254,19 +254,8 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     }
   }, true);
 
-
-  $scope.updateRawData = function() {
-    if (!$scope.rawdata) return;
-    $scope.data = $scope.rawdata.split(/[#\s]+/)
-    .map(function(v) {return +v;})
-    .filter(function(v) {return v > 0;});
-  };
-
-  $scope.clearRawData = function() {
-    $scope.rawdata = "";
-  };
-
 }]);  // Main Controller
+
 
 app.directive('dropArea', function() {
   return function( scope, elm, attrs ) {
@@ -283,20 +272,29 @@ app.directive('dropArea', function() {
         scope[ attrs.dropArea ] = event.dataTransfer.files;
       });
     });
-    elm.bind('click', function() {
-      $('input').click();
-    });
   };
 });
 
-app.directive("filelistBind", function() {
-  return function( scope, elm, attrs ) {
-    elm.bind("change", function( evt ) {
-      console.log( evt );
-      scope.$apply(function( scope ) {
-        scope[ attrs.name ] = evt.target.files;
+app.directive("fileSelect", function() {
+  var template = '<input type="file" multiple name="files" style="display:none"/>';
+  return {
+    link: function( scope, elem, attrs ) {
+      var selector = $( template );
+      selector.bind('change', function( event ) {
+        scope.$apply(function() {
+          scope[ attrs.fileSelect ] = event.originalEvent.target.files;
+        });
       });
-    });
+      selector.click(function( event ) {
+        event.stopPropagation();
+      });
+      elem.after(selector);
+      elem.bind('click', function( event ) {
+        event.stopPropagation();
+        event.preventDefault();
+        selector.click();
+      });
+    }
   };
 });
 
@@ -311,6 +309,25 @@ app.directive("flot", function() {
       };
       scope.$watch('data',   updateplot);
       scope.$watch('options',updateplot);
+    }
+  };
+});
+
+app.directive('plotDataInputField', function() {
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    template: '<textarea rows="11"></textarea>',
+    link: function( scope, elem, attrs, ngModel ) {
+      var textArea = elem.find('textarea');
+      ngModel.$render = function() {
+        textArea.val( ngModel.$viewValue.join('\n') );
+      };
+      textArea.bind('change', function() {
+        var data = textArea.val().split(/\n/).map(function (v) { return +v; });
+        ngModel.$setViewValue( data );
+        scope.$apply();
+      });
     }
   };
 });
