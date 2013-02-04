@@ -1,6 +1,8 @@
-/*global require:true, process:true */
+/*global require:true, process:true, console:true */
 module.exports = function( grunt ) {
   'use strict';
+
+	//grunt.loadNpmTasks('grunt-contrib-jade');
 
   //
   // Grunt configuration:
@@ -48,6 +50,10 @@ module.exports = function( grunt ) {
 
     // default watch configuration
     watch: {
+			jade: {
+				files: 'app/*.jade',
+				tasks: 'jade reload'
+			},
       coffee: {
         files: 'app/scripts/**/*.coffee',
         tasks: 'coffee reload'
@@ -68,7 +74,7 @@ module.exports = function( grunt ) {
         ],
         tasks: 'reload'
       }
-    },
+		},
 
     // default lint configuration, change this to match your setup:
     // https://github.com/cowboy/grunt/blob/master/docs/task_lint.md#lint-built-in-task
@@ -172,7 +178,36 @@ module.exports = function( grunt ) {
         dest: 'index_offline.html',
         source: 'index.html'
       }
-    }
+    },
+
+/*
+		jade: {
+			html: {
+				src: ['app/*.jade'],
+				dest: 'app',
+				options: {
+					client: false
+				}
+			}
+		}
+		*/
+		jade: {
+			compile: {
+				options: {
+					data: {
+						debug: true
+					}
+				},
+				files: [{
+					expand: true,
+					cwd: 'app',
+					src: '*.jade',
+					dest: 'app',
+					ext: '.html'
+				}]
+			}
+		}
+
   });
 
   // Alias the `test` task to run `testacular` instead
@@ -203,4 +238,32 @@ module.exports = function( grunt ) {
     grunt.file.write(options.dest, lines.join("\n"));
     grunt.log.writeln('offline build task complete.');
   });
+
+	grunt.registerMultiTask('jade', 'compile Jade files', function() {
+		var debug = true;
+		if (debug) {
+			console.log({
+				xx: grunt.file.expandMapping( this.files.src, this.files.dest, this.files ),
+				files: this.files,
+				src: this.files[0].src,
+				self: this,
+				options: options
+			});
+		}
+		return;
+		var options = this.options();
+		var jade = require('jade');
+		//if (debug) console.log( this.files[0].src );
+		//if (debug) console.log( grunt.file.expand( this.files[0].src[0] ) );
+		this.files.forEach(function(file) {
+			if (debug) console.log( grunt.file.expand( file.src ) );
+			file.src = grunt.file.expand( file.src );
+			if (debug) console.log( file );
+			var code = grunt.file.read(file.src[0]);
+			//var options = grunt.util._.extend({filename: file}, options);
+			var html = jade.compile(code)(options);
+			grunt.file.write(file.dest, html);
+		});
+		//lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
+	});
 };
