@@ -180,7 +180,7 @@ module.exports = function( grunt ) {
       }
     },
 
-/*
+  /*
 		jade: {
 			html: {
 				src: ['app/*.jade'],
@@ -223,17 +223,19 @@ module.exports = function( grunt ) {
 
   grunt.registerTask('offline', 'build offline page', function() {
     process.chdir('dist');
-    var lines, options;
-    options = this.options();
+    var lines,
+      options = this.options(),
+      pattern = new RegExp('<(script|link).*(src|href)="([^"]+)"', 'i');
     lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
-      var js, jsfile, match;
-      match = line.match(/<script .*src=\s*"([^\s]*)"/i);
-      if (!(match && match[1])) {
+      var contents, file, match, type;
+      match = line.match(pattern);
+      if (!(match && match[1] && match[3])) {
         return line;
       }
-      jsfile = "" + match[1];
-      js = grunt.file.read(jsfile);
-      return "<script>" + js + "</script>";
+      type = ( match[1] == "link" ? "style" : "script" );
+      file = match[3];
+      contents = grunt.file.read(file);
+      return "<" + type + ">" + contents + "</" + type + ">";
     });
     grunt.file.write(options.dest, lines.join("\n"));
     grunt.log.writeln('offline build task complete.');
@@ -250,7 +252,6 @@ module.exports = function( grunt ) {
 				options: options
 			});
 		}
-		return;
 		var options = this.options();
 		var jade = require('jade');
 		//if (debug) console.log( this.files[0].src );
