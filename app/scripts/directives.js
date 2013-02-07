@@ -12,7 +12,7 @@ app.directive('dropArea', function() {
       scope.$apply(function( scope ) {
         console.log(event);
         //console.log( event.dataTransfer.files,  attrs.dropArea );
-        scope[ attrs.dropArea ] = event.dataTransfer.files;
+        scope[ attrs.dropArea ] = event.originalEvent.dataTransfer.files;
       });
     });
   };
@@ -20,24 +20,22 @@ app.directive('dropArea', function() {
 
 app.directive("fileSelect", function() {
   var template = '<input type="file" multiple name="files" style="display:none"/>';
-  return {
-    link: function( scope, elem, attrs ) {
-      var selector = $( template );
-      selector.bind('change', function( event ) {
-        scope.$apply(function() {
-          scope[ attrs.fileSelect ] = event.originalEvent.target.files;
-        });
+  return function( scope, elem, attrs ) {
+    var selector = $( template );
+    selector.bind('change', function( event ) {
+      scope.$apply(function() {
+        scope[ attrs.fileSelect ] = event.originalEvent.target.files;
       });
-      selector.click(function( event ) {
-        event.stopPropagation();
-      });
-      elem.after(selector);
-      elem.bind('click', function( event ) {
-        event.stopPropagation();
-        event.preventDefault();
-        selector.click();
-      });
-    }
+    });
+    selector.click(function( event ) {
+      event.stopPropagation();
+    });
+    elem.after(selector);
+    elem.bind('click', function( event ) {
+      event.stopPropagation();
+      event.preventDefault();
+      selector.click();
+    });
   };
 });
 
@@ -53,7 +51,7 @@ app.directive("flot", function() {
       scope.$watch('data',   updateplot);
       scope.$watch('options',updateplot);
       //
-      $(elm).bind('plotclick', function( event, pos, item ) {
+      elm.bind('plotclick', function( event, pos, item ) {
         //console.log([event, pos, item]);
         var args = {x: pos.x, y: pos.y};
         if ( item ) {
@@ -63,7 +61,7 @@ app.directive("flot", function() {
         scope.click({args: args});
       });
       //
-      $(elm).bind('plotselected', function( event, ranges ) {
+      elm.bind('plotselected', function( event, ranges ) {
         console.log([ event, ranges ]);
       });
     }
