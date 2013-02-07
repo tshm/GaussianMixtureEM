@@ -180,33 +180,37 @@ module.exports = function( grunt ) {
       }
     },
 
+		jade: {
+      options: {pretty: true},
+      html: {
+        src: 'app/test.jade', dest: 'app/test.html'
+      }
+		}
   /*
 		jade: {
-			html: {
-				src: ['app/*.jade'],
-				dest: 'app',
-				options: {
-					client: false
-				}
-			}
+      options: {
+        data: {
+          debug: true
+        }
+      },
+      html: {
+        files: [{
+          expand: true,
+          cwd: 'app',
+          src: '*.jade',
+          dest: 'app',
+          ext: '.html'
+        }]
+      }
 		}
+    jade: {
+      compile: {
+        files: {
+          'app/*.html': 'app/*.jade'
+        }
+      }
+    }
 		*/
-		jade: {
-			compile: {
-				options: {
-					data: {
-						debug: true
-					}
-				},
-				files: [{
-					expand: true,
-					cwd: 'app',
-					src: '*.jade',
-					dest: 'app',
-					ext: '.html'
-				}]
-			}
-		}
 
   });
 
@@ -242,28 +246,38 @@ module.exports = function( grunt ) {
   });
 
 	grunt.registerMultiTask('jade', 'compile Jade files', function() {
-		var debug = true;
+    grunt.util = grunt.util || grunt.utils;
+    var path = require('path');
+    //var helpers = require('grunt-lib-contrib').init(grunt);
+    //this.files = this.files || helpers.normalizeMultiTaskFiles(this.data, this.target);
+    //this.files = grunt.helper('normalizeMultiTaskFiles', this.data, this.target);
+
+		var options = this.options();
+		var data = this.data;
+		var debug = false;
 		if (debug) {
 			console.log({
-				xx: grunt.file.expandMapping( this.files.src, this.files.dest, this.files ),
-				files: this.files,
-				src: this.files[0].src,
-				self: this,
-				options: options
+				//xx: grunt.file.expandMapping( this.files.src, this.files.dest, this.files ),
+        current: JSON.stringify( grunt.task.current ),
+				files: JSON.stringify( this.files ),
+				//src: this.files[0].src,
+				options: options,
+        data: JSON.stringify( data ),
+				self: this
 			});
 		}
-		var options = this.options();
 		var jade = require('jade');
 		//if (debug) console.log( this.files[0].src );
 		//if (debug) console.log( grunt.file.expand( this.files[0].src[0] ) );
 		this.files.forEach(function(file) {
-			if (debug) console.log( grunt.file.expand( file.src ) );
-			file.src = grunt.file.expand( file.src );
+			//if (debug) console.log( grunt.file.expand( file.src ) );
+			//file.src = grunt.file.expand( file.src );
 			if (debug) console.log( file );
-			var code = grunt.file.read(file.src[0]);
+			var code = grunt.file.read(file.src);
 			//var options = grunt.util._.extend({filename: file}, options);
-			var html = jade.compile(code)(options);
+			var html = jade.compile(code, options)();
 			grunt.file.write(file.dest, html);
+      //grunt.log.writeln( html );
 		});
 		//lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
 	});
