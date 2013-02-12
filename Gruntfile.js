@@ -183,7 +183,7 @@ module.exports = function( grunt ) {
 		jade: {
       options: {pretty: true},
       html: {
-        src: 'app/test.jade', dest: 'app/test.html'
+        src: 'app/index.jade', dest: 'app/index.html'
       }
 		}
   /*
