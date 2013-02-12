@@ -97,8 +97,8 @@ app.directive('focus', ['$timeout', function($timeout) {
     elem.bind('blur', function() {
       if ( false !== scope.$eval( attrs.focus ) ) {
         $timeout(function() {
-          scope.$apply( attrs.focus + ' = false' );
-        }, 500, false);
+          scope.$eval( attrs.focus + ' = false' );
+        }, 500);
       }
     });
     scope.$watch(attrs.focus, function(val) {
