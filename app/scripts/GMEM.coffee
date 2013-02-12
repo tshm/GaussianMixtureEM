@@ -68,20 +68,18 @@ class GMEM
 			prod_pkg += Math.log( sum_pkg )
 		return prod_pkg
 	
-	# run_iteration
-	run_iteration: () ->
+	# step
+	step: () ->
 		@expectation()
 		@maximization()
 		@L = @loglikelihood()
-		return
 	
 	run: () ->
-		L_old = @L
 		for i in [0...100]
-			@run_iteration()
-			console.log "#{i} LogLikelihood: #{@L}"
-			return if ( !isFinite(this.L) || Math.abs(this.L - L_old) < 0.1 )
 			L_old = @L
+			console.log "#{i} LogLikelihood: #{@L}"
+			@step()
+			return if ( !isFinite(@L) || Math.abs(@L - L_old) < 0.1 )
 		return
 
 	get_result: () ->

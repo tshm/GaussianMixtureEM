@@ -40,7 +40,7 @@ var estimateInitialParam = function(h, K) {
 app.controller('MainCtrl', ['$scope', function( $scope ) {
 
   $scope.iterate = function() {
-    $scope.em.run_iteration();
+    $scope.em.step();
     $scope.estimate();
   };
 

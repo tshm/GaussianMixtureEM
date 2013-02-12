@@ -87,22 +87,21 @@
       return prod_pkg;
     };
 
-    GMEM.prototype.run_iteration = function() {
+    GMEM.prototype.step = function() {
       this.expectation();
       this.maximization();
-      this.L = this.loglikelihood();
+      return this.L = this.loglikelihood();
     };
 
     GMEM.prototype.run = function() {
       var L_old, i, _i;
-      L_old = this.L;
       for (i = _i = 0; _i < 100; i = ++_i) {
-        this.run_iteration();
+        L_old = this.L;
         console.log("" + i + " LogLikelihood: " + this.L);
+        this.step();
         if (!isFinite(this.L) || Math.abs(this.L - L_old) < 0.1) {
           return;
         }
-        L_old = this.L;
       }
     };
 
