@@ -1,106 +1,91 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!DOCTYPE html><!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]--><!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"><![endif]--><!--[if IE 8]><html class="no-js lt-ie9"><![endif]--><!--[if gt IE 8]><html class="no-js"><![endif]-->
 <head>
-  <meta charset="utf-8"/>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>EM for Gaussian Mixture</title>
-  <meta name="description" content=""/>
-  <meta name="viewport" content="width=device-width"/>
-  <!-- build:css styles/styles.css -->
-  <link rel="stylesheet" href="styles/bootstrap.css"/>
-  <link rel="stylesheet" href="styles/main.css"/>
-  <!-- endbuild -->
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <!-- build:css styles/styles.css-->
+  <link rel="stylesheet" href="styles/bootstrap.css">
+  <link rel="stylesheet" href="styles/icons.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild-->
 </head>
-<body ng-app="emjsApp">
-<!--[if lt IE 7]>
-  <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
-<![endif]-->
-
-<!--[if lt IE 9]>
+<body ng-app="emjsApp"><!--[if lt IE 7]>
+  <p class="chromeframe">You are using an outdated browser.<a href="http://browsehappy.com/">Upgrade your browser today</a>or<a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a>to better experience this site.</p><![endif]--><!--[if lt IE 9]>
   <script src="scripts/vendor/es5-shim.min.js"></script>
-  <script src="scripts/vendor/json3.min.js"></script>
-<![endif]-->
-
-<div class="container" ng-controller="MainCtrl" ng-init="debug = true">
-
-  <h2>Expectation Maximization for Gaussian Mixture</h2>
-  <div class="well">
-    <span ng-show="result.L ">LogLikelihood : {{ result.L | number:2 }}</span><br>
-    <span ng-show="filelist[0]">File: {{ filelist[0].name }}</span>
-  </div>
-
-  <div ng-init="step = false" ng-show="step">
-    <button ng-click="iterate()">Step</button>
-    <button ng-click="run()">RUN</button>
-  </div>
-
-  <div class="row">
-    <!-- plotting area -->
-    <div class="span9" id="plot" flot="graphdata" flot-options="options" click="plotclick(args)"></div>
-    <!-- raw data area -->
-    <div class="span3" drop-area="filelist" class="well">
-      <form class="form">
-        <div plot-data-input-field ng-model="data"></div>
-        <button class="btn" file-select="filelist">select file</button>
-      </form>
+  <script src="scripts/vendor/json3.min.js"></script><![endif]-->
+  <div ng-controller="MainCtrl" ng-init="debug = true" class="container">
+    <h2>Expectation Maximization for Gaussian Mixture</h2>
+    <div ng-init="step = false" ng-show="step">
+      <button ng-click="iterate()">Step</button>
+      <button ng-click="run()">RUN</button>
     </div>
-  </div>
-
-  <hr>
-
-  <form id="histogram_params" class="form form-inline" ng-submit="update(model0)">
-    <fieldset>
-      <label>binsize: <input type="text" ng-model="binsize"/></label>
-      <button ng-click="model0.push({m:0,s:30,p:1,focus:1})" class="btn">add cluster</button>
-      <input type="submit" class="btn btn-success"/>
-      <div>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>cluster ID</th><th>m_init</th><th>m</th><th>s</th><th>p</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="m in result.model">
-              <td>{{ $index }}</td>
-              <td>
-                <input type="text" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"/>
-                <a ng-click="remove($index)">&times;</a>
-              </td>
-              <td>{{ m.m | number:0 }}</td>
-              <td>{{ m.s | number:0 }}</td>
-              <td>{{ m.p | number:2 }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="row">
+      <div class="span8"><span ng-show="result.L ">LogLikelihood :<span class="label">{{ result.L | number:2 }}</span></span>
+        <div ng-show="calculating" class="loading"></div>
+        <div ng-hide="calculating">
+          <div id="plot" flot="graphdata" flot-options="options" click="plotclick(args)"></div>
+        </div>
       </div>
-    </fieldset>
-  </form>
-
-</div>
-
-<!-- build:js scripts/vendors.js -->
-<script src="components/jquery/jquery.js"></script>
-<script src="scripts/vendor/angular.js"></script>
-<script src="components/flot/jquery.flot.js"></script>
-<!-- endbuild -->
-
-<!-- build:js scripts/scripts.js -->
-<script src="scripts/shim.js"></script>
-<script src="scripts/GMEM.js"></script>
-<script src="scripts/directives.js"></script>
-<script src="scripts/app.js"></script>
-<!-- endbuild -->
-
-<!-- Google Analytics -->
-<script>
-  var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
-</script>
-</body>
-</html>
+      <div drop-area="filelist" class="span3 well"><span ng-show="filelist[0]">File:<span class="label">{{ filelist[0].name }}</span></span>
+        <form>
+          <div plot-data-input-field ng-model="data"></div>
+          <button file-select="filelist" class="btn">select file</button>
+        </form>
+      </div>
+    </div>
+    <hr>
+    <form id="histogram_params" ng-submit="update(model0)" class="form form-inline">
+      <fieldset>
+        <label>binsize:
+          <input type="text" ng-model="binsize" class="input input-small">
+        </label>
+        <button ng-click="model0.push({m:0,s:30,p:1,focus:1})" class="btn">add cluster</button>
+        <input type="submit" class="btn btn-success">
+        <div>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>cluster ID</th>
+                <th>m_init</th>
+                <th>m</th>
+                <th>s</th>
+                <th>p</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="m in result.model">
+                <td>{{ $index }}</td>
+                <td>
+                  <input type="text" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
+                </td>
+                <td>{{ m.m | number:0 }}</td>
+                <td>{{ m.s | number:0 }}</td>
+                <td>{{ m.p | number:2 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <!-- build:js scripts/vendors.js-->
+  <script src="components/jquery/jquery.js"></script>
+  <script src="scripts/vendor/angular.js"></script>
+  <script src="components/flot/jquery.flot.js"></script>
+  <!-- endbuild-->
+  <!-- build:js scripts/scripts.js-->
+  <script src="scripts/shim.js"></script>
+  <script src="scripts/GMEM.js"></script>
+  <script src="scripts/directives.js"></script>
+  <script src="scripts/app.js"></script>
+  <!-- endbuild-->
+  <!-- Google Analytics-->
+  <script>
+    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g,s)}(document,'script'));
+  </script>
+</body></html>

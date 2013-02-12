@@ -190,7 +190,8 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     $scope.draw_graph( $scope.h, $scope.result.model );
   };
 
-  $scope.update = function(model0) {
+  $scope.update = function( model0 ) {
+    $scope.calculating = true;
     var model;
     $scope.h = $scope.get_histogram( $scope.binsize );
     if (model0) {
@@ -202,10 +203,9 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     $scope.em = new GMEM($scope.data, model);
     console.log( $scope.em );
     $scope.draw_graph( $scope.h, model );
-    if (!$scope.step) {
-      $scope.em.run();
-      $scope.estimate();
-    }
+    $scope.em.run();
+    $scope.estimate();
+    $scope.calculating = false;
   };
 
   $scope.remove = function(index) {
