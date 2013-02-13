@@ -58,7 +58,7 @@
               <tr ng-repeat="m in result.model">
                 <td>{{ $index }}</td>
                 <td>
-                  <input type="text" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
+                  <input ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
                 </td>
                 <td>{{ m.m | number:0 }}</td>
                 <td>{{ m.s | number:0 }}</td>
@@ -85,7 +85,7 @@
   <script>
     var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
     (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-      s.parentNode.insertBefore(g,s)}(document,'script'));
+     g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+     s.parentNode.insertBefore(g,s)}(document,'script'));
   </script>
 </body></html>
