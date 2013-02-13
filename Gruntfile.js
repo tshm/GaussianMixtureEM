@@ -229,17 +229,22 @@ module.exports = function( grunt ) {
     process.chdir('dist');
     var lines,
       options = this.options(),
-      pattern = new RegExp('<(script|link).*(src|href)="([^"]+)"', 'i');
+      pattern = new RegExp('<(script|link).*(src|href)="([^"]+)"[^>]*>(.*)', 'i');
     lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
-      var contents, file, match, type;
+      var contents, file, post, match;
       match = line.match(pattern);
       if (!(match && match[1] && match[3])) {
         return line;
       }
-      type = ( match[1] == "link" ? "style" : "script" );
+      grunt.log.writeln(match);
       file = match[3];
+      post = match[4];
       contents = grunt.file.read(file);
-      return "<" + type + ">" + contents + "</" + type + ">";
+      if (match[1] === "link") {
+        return "<style>" + contents + "</style>" + post;
+      } else {
+        return "<script>" + contents + post;
+      }
     });
     grunt.file.write(options.dest, lines.join("\n"));
     grunt.log.writeln('offline build task complete.');
