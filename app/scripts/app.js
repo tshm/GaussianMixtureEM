@@ -1,7 +1,7 @@
 // handle missing window.console.log cases.
 var app = angular.module('emjsApp', ['emjsAppDirectives']);
 
-var hist = function(data, min, binsize, N) {
+var hist = function( data, min, binsize, N ) {
   var bin = [], inc = 1.0 / data.length;
   var min1 = min - binsize/2;
   for (var i = 0; i < N; i++)  // initialize
@@ -16,7 +16,7 @@ var hist = function(data, min, binsize, N) {
   return bin;
 };
 
-var estimateInitialParam = function(h, K) {
+var estimateInitialParam = function( h, K ) {
   var max_pos = 0, max = 0;
   for (var i = 0; i < h.length; i++) {
     if ( max < h[i][1] ) {
@@ -139,38 +139,38 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
 
   $scope.binsize = 50;
 
-  $scope.get_histogram = function(binsize) {
+  $scope.get_histogram = function( binsize ) {
     var min = $scope.data[0], max = min, N, k;
-    angular.forEach($scope.data, function(v) {
+    angular.forEach( $scope.data, function(v) {
       if ( v < min ) min = v;
       if ( max < v ) max = v;
     });
     //console.log([min,max]);
     N = 5 + Math.floor( ( max - min ) / binsize );
-    return hist($scope.data, min - 2 * binsize, binsize, N);
+    return hist( $scope.data, min - 2 * binsize, binsize, N );
   };
 
-  $scope.draw_graph = function(h, model) {
+  $scope.draw_graph = function( h, model ) {
     var min = h[0][0], max = h[h.length-1][0], binsize = (max-min)/(h.length-1);
     var gg = [], means = [];
-    if (model) {
+    if ( model ) {
       // Gaussian mixture graph
       for (var x = min; x < max; x+=0.1*binsize) {
         var f = 0.0;
         for (k=0; k < model.length; k++) {
           f += model[k].p * $scope.em.g(x, model[k].m, model[k].s);
         }
-        gg.push([x, binsize * f]);
+        gg.push([ x, binsize * f ]);
       }
       // means
       for (k=0; k < model.length; k++) {
-        means[k] = [model[k].m, 0];
+        means[k] = [ model[k].m, 0 ];
       }
     }
     $scope.graphdata = [
-      {data: h, bars: {show:true}},
-      {data: gg, lines:{show:true}},
-      {points:{show:true}, data:means}
+      { data: h, bars: { show: true } },
+      { data: gg, lines: { show: true } },
+      { points: { show: true }, data: means }
     ];
     $scope.options = {
       series: {
@@ -194,11 +194,11 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     $scope.calculating = true;
     var model;
     $scope.h = $scope.get_histogram( $scope.binsize );
-    if (model0) {
-      model = angular.copy(model0);
+    if ( model0 ) {
+      model = angular.copy( model0 );
     } else {
-      model = estimateInitialParam($scope.h);
-      $scope.model0 = angular.copy(model);
+      model = estimateInitialParam( $scope.h );
+      $scope.model0 = angular.copy( model );
     }
     $scope.em = new GMEM($scope.data, model);
     console.log( $scope.em );
@@ -208,24 +208,24 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     $scope.calculating = false;
   };
 
-  $scope.remove = function(index) {
+  $scope.remove = function( index ) {
     delete $scope.model0[index];
-    $scope.model0.splice(index, 1);
+    $scope.model0.splice( index, 1 );
     $scope.update( $scope.model0 );
   };
 
-  $scope.$watch('data', function(data) {
-    if (!data) return;
-    $scope.binsize = (function(data) {
+  $scope.$watch('data', function( data ) {
+    if ( !data ) return;
+    $scope.binsize = (function( data ) {
       var N = data.length,
       k = Math.ceil(1 + Math.log(N, 2));
       var min = data[0], max = data[0];
       for (var i = 0; i < N; i++) {
-        if (data[i] < min) min = data[i];
-        if (data[i] > max) max = data[i];
+        if ( data[i] < min ) min = data[i];
+        if ( data[i] > max ) max = data[i];
       }
-      return Math.round( (max - min) / Math.sqrt(N) / 3 );
-    })(data);
+      return Math.round( (max - min) / Math.sqrt( N ) / 3 );
+    })( data );
     $scope.update();
   });
 
@@ -258,7 +258,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
       $scope.model0[args.dataIndex].focus = true;
       $scope.$apply();
     } else {
-      $scope.model0.forEach(function(m, i) {
+      $scope.model0.forEach(function( m, i ) {
         if ( !m.focus ) return;
         $scope.model0[i].m = args.x;
       });

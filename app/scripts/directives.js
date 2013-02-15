@@ -2,15 +2,15 @@ var app = angular.module('emjsAppDirectives', []);
 
 app.directive('dropArea', function() {
   return function( scope, elm, attrs ) {
-    elm.bind("dragover", function( event ) {
+    elm.bind('dragover', function( event ) {
       event.stopPropagation();
       event.preventDefault();
     });
-    elm.bind("drop", function( event ) {
+    elm.bind('drop', function( event ) {
       event.stopPropagation();
       event.preventDefault();
       scope.$apply(function( scope ) {
-        console.log(event);
+        //console.log(event);
         //console.log( event.dataTransfer.files,  attrs.dropArea );
         scope[ attrs.dropArea ] = event.originalEvent.dataTransfer.files;
       });
@@ -18,7 +18,7 @@ app.directive('dropArea', function() {
   };
 });
 
-app.directive("fileSelect", function() {
+app.directive('fileSelect', function() {
   var template = '<input type="file" multiple name="files" style="display:none"/>';
   return function( scope, elem, attrs ) {
     var selector = $( template );
@@ -39,7 +39,7 @@ app.directive("fileSelect", function() {
   };
 });
 
-app.directive("flot", function() {
+app.directive('flot', function() {
   return {
     scope: { data: '=flot', options: '=flotOptions', click: '&' },
     replace: false,
@@ -53,12 +53,12 @@ app.directive("flot", function() {
       //
       elm.bind('plotclick', function( event, pos, item ) {
         //console.log([event, pos, item]);
-        var args = {x: pos.x, y: pos.y};
+        var args = { x: pos.x, y: pos.y };
         if ( item ) {
           args.dataIndex = item.dataIndex;
           args.seriesIndex = item.seriesIndex;
         }
-        scope.click({args: args});
+        scope.click({ args: args });
       });
       //
       elm.bind('plotselected', function( event, ranges ) {
@@ -87,7 +87,7 @@ app.directive('plotDataInputField', function() {
   };
 });
 
-app.directive('focus', ['$timeout', function($timeout) {
+app.directive('focus', ['$timeout', function( $timeout ) {
   return function( scope, elem, attrs ) {
     elem.bind('focus', function() {
       if ( true !== scope.$eval( attrs.focus ) ) {
@@ -98,10 +98,10 @@ app.directive('focus', ['$timeout', function($timeout) {
       if ( false !== scope.$eval( attrs.focus ) ) {
         $timeout(function() {
           scope.$eval( attrs.focus + ' = false' );
-        }, 500);
+        }, 500 );
       }
     });
-    scope.$watch(attrs.focus, function(val) {
+    scope.$watch( attrs.focus, function( val ) {
       $(elem).trigger( val ? 'focus' : 'blur' );
     });
   };

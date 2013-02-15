@@ -1,60 +1,60 @@
 !!!
 //if lt IE 7
-	| <html class="no-js lt-ie9 lt-ie8 lt-ie7">
+	| <html class='no-js lt-ie9 lt-ie8 lt-ie7'>
 //if IE 7
-	| <html class="no-js lt-ie9 lt-ie8">
+	| <html class='no-js lt-ie9 lt-ie8'>
 //if IE 8
-	| <html class="no-js lt-ie9">
+	| <html class='no-js lt-ie9'>
 //if gt IE 8
-	| <html class="no-js">
+	| <html class='no-js'>
 head
-	meta(charset="utf-8")
-	meta(http-equiv="X-UA-Compatible",content="IE=edge,chrome=1")
+	meta(charset='utf-8')
+	meta(http-equiv='X-UA-Compatible',content='IE=edge,chrome=1')
 	title EM for Gaussian Mixture
-	meta(name="description",content="")
-	meta(name="viewport",content="width=device-width")
+	meta(name='description',content='')
+	meta(name='viewport',content='width=device-width')
 	// build:css styles/styles.css
-	link(rel="stylesheet",href="styles/bootstrap.css")
-	link(rel="stylesheet",href="styles/icons.css")
-	link(rel="stylesheet",href="styles/main.css")
+	link(rel='stylesheet',href='styles/bootstrap.css')
+	link(rel='stylesheet',href='styles/icons.css')
+	link(rel='stylesheet',href='styles/main.css')
 	// endbuild
-body(ng-app="emjsApp")
+body(ng-app='emjsApp')
 	//if lt IE 7
 		p.chromeframe You are using an outdated browser.
-			a(href="http://browsehappy.com/").
+			a(href='http://browsehappy.com/').
 				Upgrade your browser today
 			| or
-			a(href="http://www.google.com/chromeframe/?redirect=true").
+			a(href='http://www.google.com/chromeframe/?redirect=true').
 				install Google Chrome Frame
 			| to better experience this site.
 	//if lt IE 9
-		script(src="scripts/vendor/es5-shim.min.js")
-		script(src="scripts/vendor/json3.min.js")
-	.container(ng-controller="MainCtrl",ng-init="debug = true")
+		script(src='scripts/vendor/es5-shim.min.js')
+		script(src='scripts/vendor/json3.min.js')
+	.container(ng-controller='MainCtrl',ng-init='debug = true')
 		h2 Expectation Maximization for Gaussian Mixture
-		div(ng-init="step = false",ng-show="step")
-			button(ng-click="iterate()") Step
-			button(ng-click="run()") RUN
+		div(ng-init='step = false',ng-show='step')
+			button(ng-click='iterate()') Step
+			button(ng-click='run()') RUN
 		.row
 			.span8
-				span(ng-show="result.L ") LogLikelihood :
+				span(ng-show='result.L ') LogLikelihood :
 					span.label {{ result.L | number:2 }}
-				div.loading(ng-show="calculating")
-				div(ng-hide="calculating")
-					#plot(flot="graphdata",flot-options="options",click="plotclick(args)")
-			.span3.well(drop-area="filelist")
-				span(ng-show="filelist[0]") File:
+				div.loading(ng-show='calculating')
+				div(ng-hide='calculating')
+					#plot(flot='graphdata',flot-options='options',click='plotclick(args)')
+			.span3.well(drop-area='filelist')
+				span(ng-show='filelist[0]') File:
 					span.label {{ filelist[0].name }}
 				form
-					div(plot-data-input-field, ng-model="data")
-					button.btn(file-select="filelist") select file
+					div(plot-data-input-field, ng-model='data')
+					button.btn(file-select='filelist') select file
 		hr
-		form#histogram_params.form.form-inline(ng-submit="update(model0)")
+		form#histogram_params.form.form-inline(ng-submit='update(model0)')
 			fieldset
 				label binsize:
-					input.input.input-small(type="text",ng-model="binsize")
-				button.btn(ng-click="model0.push({m:0,s:30,p:1,focus:1})") add cluster
-				input.btn.btn-success(type="submit")
+					input.input.input-small(type='text',ng-model='binsize')
+				button.btn(ng-click='model0.push({m:0,s:30,p:1,focus:1})') add cluster
+				input.btn.btn-success(type='submit')
 				div
 					table.table.table-striped
 						thead
@@ -65,25 +65,25 @@ body(ng-app="emjsApp")
 								th s
 								th p
 						tbody
-							tr(ng-repeat="m in result.model")
+							tr(ng-repeat='m in result.model')
 								td {{ $index }}
 								td
-									input.input.input-small(ng-model="model0[$index].m",focus="model0[$index].focus")
-									a(ng-click="remove($index)") &times;
+									input.input.input-small(ng-model='model0[$index].m',focus='model0[$index].focus')
+									a(ng-click='remove($index)') &times;
 								td {{ m.m | number:0 }}
 								td {{ m.s | number:0 }}
 								td {{ m.p | number:2 }}
 
 	// build:js scripts/vendors.js
-	script(src="components/jquery/jquery.js")
-	script(src="scripts/vendor/angular.js")
-	script(src="components/flot/jquery.flot.js")
+	script(src='components/jquery/jquery.js')
+	script(src='scripts/vendor/angular.js')
+	script(src='components/flot/jquery.flot.js')
 	// endbuild
 	// build:js scripts/scripts.js
-	script(src="scripts/shim.js")
-	script(src="scripts/GMEM.js")
-	script(src="scripts/directives.js")
-	script(src="scripts/app.js")
+	script(src='scripts/shim.js')
+	script(src='scripts/GMEM.js')
+	script(src='scripts/directives.js')
+	script(src='scripts/app.js')
 	// endbuild
 	// Google Analytics
 	script
