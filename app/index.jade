@@ -46,7 +46,7 @@ body(ng-app='emjsApp')
 				span(ng-show='filelist[0]') File:
 					span.label {{ filelist[0].name }}
 				form
-					div(plot-data-input-field, ng-model='data')
+					textarea(plot-data-input-field, ng-model='data', rows="11")
 					button.btn(file-select='filelist') select file
 					button.btn(ng-click="sort()") sort
 		hr

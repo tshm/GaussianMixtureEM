@@ -72,18 +72,12 @@ app.directive('plotDataInputField', function() {
   return {
     restrict: 'A',
     require: '?ngModel',
-    template: '<textarea rows="11"></textarea>',
     link: function( scope, elem, attrs, ngModel ) {
-      var textArea = elem.find('textarea');
-      ngModel.$render = function() {
-        textArea.val( ngModel.$viewValue.join('\n') );
-      };
-      textArea.bind('change', function() {
-        console.log('modelValue: ', ngModel.$modelValue);
-        var data = textArea.val().split(/\n/).map(function (v) { return +v; });
-        ngModel.$setViewValue( data );
-        console.log('modelValue: ', ngModel.$modelValue);
-        scope.$apply();
+      ngModel.$formatters.push(function( arr ) {
+        return arr.join('\n');
+      });
+      ngModel.$parsers.push(function( text ) {
+        return text.split(/\n/).map(function (v) { return +v; });
       });
     }
   };

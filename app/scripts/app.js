@@ -210,7 +210,7 @@ app.controller('MainCtrl', ['$scope', '$log', function( $scope, $log ) {
 
   $scope.sort = function() {
     console.log('sort triggered');
-    $scope.data = $scope.data.sort();
+    $scope.data = angular.copy( $scope.data.sort() );
   };
 
   $scope.remove = function( index ) {
