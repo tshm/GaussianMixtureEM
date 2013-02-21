@@ -223,6 +223,10 @@ module.exports = function( grunt ) {
     });
   });
 
+  grunt.renameTask('build', 'buildOrig');
+
+  grunt.registerTask('build', ['jade:html:release', 'buildOrig']);
+
   grunt.registerTask('buildall', ['build', 'offline']);
 
   grunt.registerTask('offline', 'build offline page', function() {
@@ -250,7 +254,7 @@ module.exports = function( grunt ) {
     grunt.log.writeln('offline build task complete.');
   });
 
-	grunt.registerMultiTask('jade', 'compile Jade files', function() {
+	grunt.registerMultiTask('jade', 'compile Jade files', function(arg) {
     grunt.util = grunt.util || grunt.utils;
     var path = require('path');
     //var helpers = require('grunt-lib-contrib').init(grunt);
@@ -280,7 +284,7 @@ module.exports = function( grunt ) {
 			if (debug) console.log( file );
 			var code = grunt.file.read(file.src);
 			//var options = grunt.util._.extend({filename: file}, options);
-			var html = jade.compile(code, options)();
+			var html = jade.compile(code, options)({debug: arg!=="release"});
 			grunt.file.write(file.dest, html);
       //grunt.log.writeln( html );
 		});

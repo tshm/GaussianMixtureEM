@@ -15,7 +15,7 @@
   <p class="chromeframe">You are using an outdated browser.<a href="http://browsehappy.com/">Upgrade your browser today</a>or<a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a>to better experience this site.</p><![endif]--><!--[if lt IE 9]>
   <script src="scripts/vendor/es5-shim.min.js"></script>
   <script src="scripts/vendor/json3.min.js"></script><![endif]-->
-  <div ng-controller="MainCtrl" ng-init="debug = true" class="container">
+  <div ng-controller="MainCtrl" ng-init="debug = false" class="container">
     <h2>Expectation Maximization for Gaussian Mixture</h2>
     <div ng-init="step = false" ng-show="step">
       <button ng-click="iterate()">Step</button>
@@ -32,6 +32,7 @@
         <form>
           <div plot-data-input-field ng-model="data"></div>
           <button file-select="filelist" class="btn">select file</button>
+          <button ng-click="sort()" class="btn">sort</button>
         </form>
       </div>
     </div>
@@ -56,7 +57,7 @@
             </thead>
             <tbody>
               <tr ng-repeat="m in result.model">
-                <td>{{ $index }}</td>
+                <td><span class="badge">{{ $index }}</span></td>
                 <td>
                   <input ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
                 </td>

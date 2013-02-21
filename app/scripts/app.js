@@ -1,4 +1,3 @@
-// handle missing window.console.log cases.
 var app = angular.module('emjsApp', ['emjsAppDirectives']);
 
 var hist = function( data, min, binsize, N ) {
@@ -37,7 +36,7 @@ var estimateInitialParam = function( h, K ) {
   ];
 };
 
-app.controller('MainCtrl', ['$scope', function( $scope ) {
+app.controller('MainCtrl', ['$scope', '$log', function( $scope, $log ) {
 
   $scope.iterate = function() {
     $scope.em.step();
@@ -191,6 +190,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
   };
 
   $scope.update = function( model0 ) {
+    //console.log( $scope.data );
     $scope.calculating = true;
     var model;
     $scope.h = $scope.get_histogram( $scope.binsize );
@@ -206,6 +206,11 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     $scope.em.run();
     $scope.estimate();
     $scope.calculating = false;
+  };
+
+  $scope.sort = function() {
+    console.log('sort triggered');
+    $scope.data = $scope.data.sort();
   };
 
   $scope.remove = function( index ) {

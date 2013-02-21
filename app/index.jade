@@ -30,7 +30,7 @@ body(ng-app='emjsApp')
 	//if lt IE 9
 		script(src='scripts/vendor/es5-shim.min.js')
 		script(src='scripts/vendor/json3.min.js')
-	.container(ng-controller='MainCtrl',ng-init='debug = true')
+	.container(ng-controller='MainCtrl',ng-init='debug = #{debug}')
 		h2 Expectation Maximization for Gaussian Mixture
 		div(ng-init='step = false',ng-show='step')
 			button(ng-click='iterate()') Step
@@ -48,6 +48,7 @@ body(ng-app='emjsApp')
 				form
 					div(plot-data-input-field, ng-model='data')
 					button.btn(file-select='filelist') select file
+					button.btn(ng-click="sort()") sort
 		hr
 		form#histogram_params.form.form-inline(ng-submit='update(model0)')
 			fieldset
@@ -66,7 +67,8 @@ body(ng-app='emjsApp')
 								th p
 						tbody
 							tr(ng-repeat='m in result.model')
-								td {{ $index }}
+								td
+									span.badge {{ $index }}
 								td
 									input.input.input-small(ng-model='model0[$index].m',focus='model0[$index].focus')
 									a(ng-click='remove($index)') &times;

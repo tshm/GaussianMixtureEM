@@ -22,6 +22,7 @@ app.directive('fileSelect', function() {
   var template = '<input type="file" multiple name="files" style="display:none"/>';
   return function( scope, elem, attrs ) {
     var selector = $( template );
+    elem.append(selector);
     selector.bind('change', function( event ) {
       scope.$apply(function() {
         scope[ attrs.fileSelect ] = event.originalEvent.target.files;
@@ -30,7 +31,6 @@ app.directive('fileSelect', function() {
     selector.click(function( event ) {
       event.stopPropagation();
     });
-    elem.after(selector);
     elem.bind('click', function( event ) {
       event.stopPropagation();
       event.preventDefault();
@@ -79,8 +79,10 @@ app.directive('plotDataInputField', function() {
         textArea.val( ngModel.$viewValue.join('\n') );
       };
       textArea.bind('change', function() {
+        console.log('modelValue: ', ngModel.$modelValue);
         var data = textArea.val().split(/\n/).map(function (v) { return +v; });
         ngModel.$setViewValue( data );
+        console.log('modelValue: ', ngModel.$modelValue);
         scope.$apply();
       });
     }
