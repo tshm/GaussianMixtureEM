@@ -22,54 +22,60 @@
       <button ng-click="run()">RUN</button>
     </div>
     <div class="row">
-      <div class="span8"><span ng-show="result.L ">LogLikelihood :<span class="label">{{ result.L | number:2 }}</span></span>
+      <div class="span8">
+        <!--span(ng-show='result.L ') LogLikelihood :-->
+        <!--	span.label {{ result.L | number:2 }}-->
         <div ng-show="calculating" class="loading"></div>
         <div ng-hide="calculating">
-          <div id="plot" flot="graphdata" flot-options="options" click="plotclick(args)"></div>
+          <div id="plot" flot="graphdata" flot-options="graphoptions" click="plotclick(args)"></div>
         </div>
+        <!--div {{ graphdata }}-->
       </div>
-      <div drop-area="filelist" class="span3 well"><span ng-show="filelist[0]">File:<span class="label">{{ filelist[0].name }}</span></span>
-        <form>
-          <textarea plot-data-input-field ng-model="data" rows="11"></textarea>
-          <button file-select="filelist" class="btn">select file</button>
-          <button ng-click="sort()" class="btn">sort</button>
-        </form>
-      </div>
+      <!--.span4(ng-show="debug") {{ dataset | json }}-->
     </div>
-    <hr>
-    <form id="histogram_params" ng-submit="update(model0)" class="form form-inline">
-      <fieldset>
-        <label>binsize:
-          <input type="text" ng-model="binsize" class="input input-small">
-        </label>
-        <button ng-click="model0.push({m:0,s:30,p:1,focus:1})" class="btn">add cluster</button>
-        <input type="submit" class="btn btn-success">
-        <div>
+    <button ng-click="addDataSet()" class="btn">add data set</button>
+    <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; result=ds.result" class="row">
+      <div class="span1"><span ng-click="hide=!hide" class="label label-info">{{ $index }} : {{ ds.name }}</span></div>
+      <form ng-hide="hide" ng-submit="setInitialCondition(model0)" class="form form-inline">
+        <div class="span7">
+          <div class="pull-right">
+            <label>binsize:
+              <input type="text" ng-model="binsize" class="input input-small">
+            </label>
+            <button ng-click="model0.push({m:0,s:30,p:1,focus:true})" class="btn">add cluster</button>
+            <input type="submit" class="btn btn-success">
+          </div>
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>cluster ID</th>
-                <th>m_init</th>
-                <th>m</th>
-                <th>s</th>
-                <th>p</th>
+                <th>#</th>
+                <th>init m</th>
+                <th>result m</th>
+                <th>result s</th>
+                <th>result p</th>
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="m in result.model">
+              <tr ng-repeat="m in model0">
                 <td><span class="badge">{{ $index }}</span></td>
                 <td>
-                  <input ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
+                  <input type="number" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
                 </td>
-                <td>{{ m.m | number:0 }}</td>
-                <td>{{ m.s | number:0 }}</td>
-                <td>{{ m.p | number:2 }}</td>
+                <td>{{ result.model[$index].m | number:0 }}</td>
+                <td>{{ result.model[$index].s | number:0 }}</td>
+                <td>{{ result.model[$index].p | number:2 }}</td>
               </tr>
             </tbody>
           </table>
+          <div ng-show="debug">model0: {{ model0 | json }}</div>
         </div>
-      </fieldset>
-    </form>
+        <div drop-area="filelist" class="span3 well">
+          <textarea plot-data-input-field ng-model="data" rows="9"></textarea>
+          <button file-select="filelist" class="btn">select file</button>
+          <button ng-click="sort()" class="btn">sort</button>
+        </div>
+      </form>
+    </div>
   </div>
   <!-- build:js scripts/vendors.js-->
   <script src="components/jquery/jquery.js"></script>

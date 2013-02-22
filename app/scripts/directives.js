@@ -45,6 +45,7 @@ app.directive('flot', function() {
     replace: false,
     link: function( scope, elm, attrs ) {
       var updateplot = function() {
+        if ( !scope.data || !scope.options ) return;
         //console.log([scope.data, scope.options]);
         $.plot( elm, scope.data, scope.options );
       };
@@ -74,7 +75,8 @@ app.directive('plotDataInputField', function() {
     require: '?ngModel',
     link: function( scope, elem, attrs, ngModel ) {
       ngModel.$formatters.push(function( arr ) {
-        return arr.join('\n');
+        console.log('formatter triggered: ', {model: arr});
+        return arr ? arr.join('\n') : '';
       });
       ngModel.$parsers.push(function( text ) {
         return text.split(/\n/).map(function (v) { return +v; });

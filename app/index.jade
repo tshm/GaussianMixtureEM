@@ -35,46 +35,52 @@ body(ng-app='emjsApp')
 		div(ng-init='step = false',ng-show='step')
 			button(ng-click='iterate()') Step
 			button(ng-click='run()') RUN
+
 		.row
 			.span8
-				span(ng-show='result.L ') LogLikelihood :
-					span.label {{ result.L | number:2 }}
+				//span(ng-show='result.L ') LogLikelihood :
+				//	span.label {{ result.L | number:2 }}
 				div.loading(ng-show='calculating')
 				div(ng-hide='calculating')
-					#plot(flot='graphdata',flot-options='options',click='plotclick(args)')
-			.span3.well(drop-area='filelist')
-				span(ng-show='filelist[0]') File:
-					span.label {{ filelist[0].name }}
-				form
-					textarea(plot-data-input-field, ng-model='data', rows="11")
-					button.btn(file-select='filelist') select file
-					button.btn(ng-click="sort()") sort
-		hr
-		form#histogram_params.form.form-inline(ng-submit='update(model0)')
-			fieldset
-				label binsize:
-					input.input.input-small(type='text',ng-model='binsize')
-				button.btn(ng-click='model0.push({m:0,s:30,p:1,focus:1})') add cluster
-				input.btn.btn-success(type='submit')
-				div
+					#plot(flot='graphdata',flot-options='graphoptions',click='plotclick(args)')
+				//div {{ graphdata }}
+			//.span4(ng-show="debug") {{ dataset | json }}
+
+		button.btn(ng-click="addDataSet()") add data set
+
+		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; result=ds.result")
+			.span1
+				span.label.label-info(ng-click="hide=!hide") {{ $index }} : {{ ds.name }}
+			form.form.form-inline(ng-hide="hide",ng-submit='setInitialCondition(model0)')
+				.span7
+					.pull-right
+						label binsize:
+							input.input.input-small(type='text',ng-model='binsize')
+						button.btn(ng-click='model0.push({m:0,s:30,p:1,focus:true})') add cluster
+						input.btn.btn-success(type='submit')
 					table.table.table-striped
 						thead
 							tr
-								th cluster ID
-								th m_init
-								th m
-								th s
-								th p
+								th #
+								th init m
+								th result m
+								th result s
+								th result p
 						tbody
-							tr(ng-repeat='m in result.model')
+							tr(ng-repeat='m in model0')
 								td
 									span.badge {{ $index }}
 								td
-									input.input.input-small(ng-model='model0[$index].m',focus='model0[$index].focus')
+									input.input.input-small(type='number',ng-model='model0[$index].m',focus='model0[$index].focus')
 									a(ng-click='remove($index)') &times;
-								td {{ m.m | number:0 }}
-								td {{ m.s | number:0 }}
-								td {{ m.p | number:2 }}
+								td {{ result.model[$index].m | number:0 }}
+								td {{ result.model[$index].s | number:0 }}
+								td {{ result.model[$index].p | number:2 }}
+					div(ng-show="debug") model0: {{ model0 | json }}
+				.span3.well(drop-area='filelist')
+					textarea(plot-data-input-field, ng-model='data', rows="9")
+					button.btn(file-select='filelist') select file
+					button.btn(ng-click="sort()") sort
 
 	// build:js scripts/vendors.js
 	script(src='components/jquery/jquery.js')
