@@ -68,8 +68,8 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
 
   $scope.dataset = [ angular.copy( defaultdataset ) ];
 
-  $scope.addDataSet = function() {
-    $scope.dataset.push( angular.copy( defaultdataset ));
+  $scope.addDataSet = function( index ) {
+    $scope.dataset.splice( 1+index, 0, angular.copy( defaultdataset ));
   };
 
   $scope.graphdata = [];
@@ -126,17 +126,17 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
   }, true);
 
   $scope.plotclick = function( args ) {
-    if ( !$scope.model0 ) return;
-    console.log( args );
-    if ( args.seriesIndex === 2 ) {
-      $scope.model0[ args.dataIndex ].focus = true;
+    var onCharaPoints = ( args.seriesIndex % 2 === 0 ),
+      model0 = $scope.dataset[ Math.floor( args.seriesIndex / 3 ) ].model0;
+    //console.log([onCharaPoints, datasetIndex]);
+    if ( onCharaPoints ) {
+      model0[ args.dataIndex ].focus = true;
       $scope.$apply();
     } else {
-      $scope.model0.forEach(function( m, i ) {
+      model0.forEach(function( m, i ) {
         if ( !m.focus ) return;
-        $scope.model0[ i ].m = args.x;
+        model0[ i ].m = args.x;
       });
-      $scope.update( $scope.model0 );
     }
   };
 

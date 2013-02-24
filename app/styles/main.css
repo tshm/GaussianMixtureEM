@@ -4,3 +4,10 @@
 
 input:focus { background-color: yellow; }
 
+/* accordion icons */
+/*
+  down-arrow: &#x25BC;
+    up-arrow: &#x25B2;
+*/
+.opened:before { content: "▲" }
+.closed:before { content: "▼" }
