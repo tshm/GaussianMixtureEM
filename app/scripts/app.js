@@ -62,6 +62,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
 
   var defaultdataset = {
     name: 'sample_data',
+    show: true,
     data: default_sample,
     result: {}
   };
@@ -109,6 +110,7 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
 
     $scope.dataset.forEach(function( ds, i ) {
       //console.log( $scope.dataset.length, ds, i );
+      if ( !ds.show ) return;
       var obj = make_graph_for_single_dataset( ds.result.h, ds.result.model, ds.result.em );
       if ( !obj ) return;
       var label = i + ": " + ds.name;

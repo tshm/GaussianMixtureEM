@@ -33,7 +33,8 @@
       </div>
       <!--.span4(ng-show="debug") {{ dataset | json }}-->
     </div>
-    <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; result=ds.result" class="row"><span ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}"><span class="label">{{ $index }} : {{ ds.name }}</span></span><span ng-hide="dataset.length == 1">[<a title="delete dataset" ng-click="dataset.splice($index,1)">-</a>]</span>[<a title="insert dataset" ng-click="addDataSet($index)">+</a>]
+    <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; result=ds.result" class="row">
+      <div class="span6"><span ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}"><span class="label">{{ $index }} : {{ ds.name }}</span></span>[<a title="toggle graph" ng-click="ds.show=!ds.show">{{ ds.show && "hide" || "show" }}</a>]<span ng-hide="dataset.length == 1">[<a title="delete dataset" ng-click="dataset.splice($index,1)">delete</a>]</span>[<a title="insert dataset" ng-click="addDataSet($index)">insert</a>]</div>
       <form ng-hide="hide" ng-submit="setInitialCondition(model0)" class="form form-inline">
         <div class="span7">
           <div class="pull-right">
