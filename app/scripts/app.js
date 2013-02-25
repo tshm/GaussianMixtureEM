@@ -108,8 +108,8 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
   $scope.make_graphdata = function() {
     $scope.graphdata = [];
 
-    var make_graph_for_single_dataset = function( h, model, em ) {
-      if ( !h || !model || !em ) return;
+    var make_graph_for_single_dataset = function( h, model, pdf ) {
+      if ( !h || !model || !pdf ) return;
       var min = h[0][0], max = h[h.length-1][0], binsize = (max-min)/(h.length-1);
       var gg = [], means = [];
       if ( model ) {
@@ -117,7 +117,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
         for (var x = min; x < max; x+=0.1*binsize) {
           var f = 0.0;
           for (k=0; k < model.length; k++) {
-            f += model[k].p * em.g(x, model[k].m, model[k].s);
+            f += model[k].p * pdf(x, model[k].m, model[k].s);
           }
           gg.push([ x, binsize * f ]);
         }
@@ -132,7 +132,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
     $scope.dataset.forEach(function( ds, i ) {
       //console.log( $scope.dataset.length, ds, i );
       if ( !ds.show ) return;
-      var obj = make_graph_for_single_dataset( ds.result.h, ds.result.model, ds.result.em );
+      var obj = make_graph_for_single_dataset( ds.result.h, ds.result.model, ds.result.em.g );
       if ( !obj ) return;
       var label = i + ": " + ds.name;
       // histogram

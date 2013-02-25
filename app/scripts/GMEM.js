@@ -1,5 +1,6 @@
 (function() {
-  var GMEM;
+  var GMEM,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   GMEM = (function() {
 
@@ -7,6 +8,8 @@
       var i, k, n, norp, psum, _i, _j, _k, _ref, _ref1, _ref2;
       this.x = x;
       this.model = model;
+      this.g = __bind(this.g, this);
+
       this.D = 1;
       this.N = this.x.length;
       this.K = this.model.length;

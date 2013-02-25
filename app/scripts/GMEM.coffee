@@ -26,7 +26,7 @@ class GMEM
 	
 
 	# gaussian pdf
-	g: (v, m, s) ->
+	g: (v, m, s) =>
 		@gconst / Math.pow(s, @D) * Math.exp( -0.5 * Math.pow((v - m)/s, 2) )
 
 	# expectation
