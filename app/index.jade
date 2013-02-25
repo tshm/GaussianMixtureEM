@@ -48,25 +48,20 @@ body(ng-app='emjsApp')
 
 		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; filelist=ds.filelist; result=ds.result")
 			.span12
-				span.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
-					span.label {{ $index }} : {{ ds.name }}
-				| [
-				a(title="toggle graph",ng-click="ds.show=!ds.show") {{ ds.show && "hide" || "show" }}
-				| ]
-				span(ng-hide="dataset.length == 1")
-					| [
-					a(title="delete dataset",ng-click="dataset.splice($index,1)") delete
-					| ]
-				| [
-				a(title="insert dataset",ng-click="addDataSet($index)") insert
-				| ]
+				span.btn-group
+					a.btn.btn-mini.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
+						| {{ $index }} : {{ ds.name }}
+					//a.btn.btn-mini(title="toggle graph",ng-click="ds.show=!ds.show") {{ ds.show && "▂" || "⬜" }}
+					a.btn.btn-mini(title="toggle graph",ng-click="ds.show=!ds.show",ng-class='ds.show && "btn-inverse"') 💡
+					a.btn.btn-mini.btn-success(title="insert dataset",ng-click="addDataSet($index)") ✚
+					a.btn.btn-mini.btn-danger(title="delete dataset",ng-click="dataset.splice($index,1)",ng-hide="dataset.length==1") ✗
 			form.form.form-inline(ng-hide="hide",ng-submit='setInitialCondition(model0)')
 				.span7
 					.pull-right
 						label binsize:
 							input.input.input-small(type='text',ng-model='binsize')
-						button.btn(ng-click='model0.push({m:0,s:30,p:1,focus:true})') add cluster
-						input.btn.btn-success(type='submit')
+						button.btn.btn-small(ng-click='model0.push({m:0,s:30,p:1,focus:true})') add cluster
+						input.btn.btn-small.btn-success(type='submit')
 					table.table.table-striped.table-condensed
 						thead
 							tr
@@ -91,8 +86,8 @@ body(ng-app='emjsApp')
 					.span2
 						textarea.span2(plot-data-input-field='data', rows="7")
 					.span2
-						button.btn(file-select='filelist') select file
-						button.btn(ng-click="sort()") sort
+						button.btn.btn-primary(file-select='filelist') 📂  open file
+						button.btn(ng-click="sort()") ⇵ sort
 
 	// build:js scripts/vendors.js
 	script(src='components/jquery/jquery.js')
