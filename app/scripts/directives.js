@@ -72,14 +72,14 @@ app.directive('flot', function() {
 app.directive('plotDataInputField', function() {
   return {
     restrict: 'A',
-    require: '?ngModel',
-    link: function( scope, elem, attrs, ngModel ) {
-      ngModel.$formatters.push(function( arr ) {
-        console.log('formatter triggered: ', {model: arr});
-        return arr ? arr.join('\n') : '';
-      });
-      ngModel.$parsers.push(function( text ) {
-        return text.split(/\n/).map(function (v) { return +v; });
+    scope: { array: '=plotDataInputField' },
+    link: function( scope, elem, attrs ) {
+      scope.$watch('array', function( array ) {
+        elem.val( array ? array.join('\n') : '' );
+      }, true);
+      elem.bind('change', function() {
+        var arr = text.split(/\n/).map(function (v) { return +v; });
+        angular.copy( arr, scope.array );
       });
     }
   };

@@ -15,7 +15,7 @@
   <p class="chromeframe">You are using an outdated browser.<a href="http://browsehappy.com/">Upgrade your browser today</a>or<a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a>to better experience this site.</p><![endif]--><!--[if lt IE 9]>
   <script src="scripts/vendor/es5-shim.min.js"></script>
   <script src="scripts/vendor/json3.min.js"></script><![endif]-->
-  <div ng-controller="MainCtrl" ng-init="debug = true" class="container">
+  <div ng-controller="MainCtrl" ng-init="debug = false" class="container">
     <h2>Expectation Maximization for Gaussian Mixture</h2>
     <div ng-init="step = false" ng-show="step">
       <button ng-click="iterate()">Step</button>
@@ -26,15 +26,15 @@
         <!--span(ng-show='result.L ') LogLikelihood :-->
         <!--	span.label {{ result.L | number:2 }}-->
         <div ng-show="calculating" class="loading"></div>
-        <div ng-hide="calculating">
+        <div ng-hide="calculating" drop-area="dropFiles">
           <div id="plot" flot="graphdata" flot-options="graphoptions" click="plotclick(args)"></div>
         </div>
         <!--div {{ graphdata }}-->
       </div>
-      <!--.span4(ng-show="debug") {{ dataset | json }}-->
+      <div ng-show="debug" class="span4">{{ dataset[0].data.slice(0,5) | json }}</div>
     </div>
-    <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; result=ds.result" class="row">
-      <div class="span6"><span ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}"><span class="label">{{ $index }} : {{ ds.name }}</span></span>[<a title="toggle graph" ng-click="ds.show=!ds.show">{{ ds.show && "hide" || "show" }}</a>]<span ng-hide="dataset.length == 1">[<a title="delete dataset" ng-click="dataset.splice($index,1)">delete</a>]</span>[<a title="insert dataset" ng-click="addDataSet($index)">insert</a>]</div>
+    <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; filelist=ds.filelist; result=ds.result" class="row">
+      <div class="span12"><span ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}" class="accordion-header"><span class="label">{{ $index }} : {{ ds.name }}</span></span>[<a title="toggle graph" ng-click="ds.show=!ds.show">{{ ds.show && "hide" || "show" }}</a>]<span ng-hide="dataset.length == 1">[<a title="delete dataset" ng-click="dataset.splice($index,1)">delete</a>]</span>[<a title="insert dataset" ng-click="addDataSet($index)">insert</a>]</div>
       <form ng-hide="hide" ng-submit="setInitialCondition(model0)" class="form form-inline">
         <div class="span7">
           <div class="pull-right">
@@ -44,14 +44,14 @@
             <button ng-click="model0.push({m:0,s:30,p:1,focus:true})" class="btn">add cluster</button>
             <input type="submit" class="btn btn-success">
           </div>
-          <table class="table table-striped">
+          <table class="table table-striped table-condensed">
             <thead>
               <tr>
                 <th>#</th>
-                <th>init m</th>
-                <th>result m</th>
-                <th>result s</th>
-                <th>result p</th>
+                <th>init_m</th>
+                <th>result_m</th>
+                <th>result_s</th>
+                <th>result_p</th>
               </tr>
             </thead>
             <tbody>
@@ -66,12 +66,17 @@
               </tr>
             </tbody>
           </table>
-          <div ng-show="debug">model0: {{ model0 | json }}</div>
+          <div ng-show="debug" class="span7">{{ data.slice(0,10) | json }}</div>
+          <!--div(ng-show="debug") model0: {{ model0 | json }}-->
         </div>
-        <div drop-area="filelist" class="span3 well">
-          <textarea plot-data-input-field ng-model="data" rows="9"></textarea>
-          <button file-select="filelist" class="btn">select file</button>
-          <button ng-click="sort()" class="btn">sort</button>
+        <div drop-area="filelist" class="span5">
+          <div class="span2">
+            <textarea plot-data-input-field="data" rows="7" class="span2"></textarea>
+          </div>
+          <div class="span2">
+            <button file-select="filelist" class="btn">select file</button>
+            <button ng-click="sort()" class="btn">sort</button>
+          </div>
         </div>
       </form>
     </div>

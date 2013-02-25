@@ -41,14 +41,14 @@ body(ng-app='emjsApp')
 				//span(ng-show='result.L ') LogLikelihood :
 				//	span.label {{ result.L | number:2 }}
 				div.loading(ng-show='calculating')
-				div(ng-hide='calculating')
+				div(ng-hide='calculating',drop-area='dropFiles')
 					#plot(flot='graphdata',flot-options='graphoptions',click='plotclick(args)')
 				//div {{ graphdata }}
-			//.span4(ng-show="debug") {{ dataset | json }}
+			.span4(ng-show="debug") {{ dataset[0].data.slice(0,5) | json }}
 
-		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; result=ds.result")
-			.span6
-				span(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
+		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; filelist=ds.filelist; result=ds.result")
+			.span12
+				span.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
 					span.label {{ $index }} : {{ ds.name }}
 				| [
 				a(title="toggle graph",ng-click="ds.show=!ds.show") {{ ds.show && "hide" || "show" }}
@@ -67,14 +67,14 @@ body(ng-app='emjsApp')
 							input.input.input-small(type='text',ng-model='binsize')
 						button.btn(ng-click='model0.push({m:0,s:30,p:1,focus:true})') add cluster
 						input.btn.btn-success(type='submit')
-					table.table.table-striped
+					table.table.table-striped.table-condensed
 						thead
 							tr
 								th #
-								th init m
-								th result m
-								th result s
-								th result p
+								th init_m
+								th result_m
+								th result_s
+								th result_p
 						tbody
 							tr(ng-repeat='m in model0')
 								td
@@ -85,11 +85,14 @@ body(ng-app='emjsApp')
 								td {{ result.model[$index].m | number:0 }}
 								td {{ result.model[$index].s | number:0 }}
 								td {{ result.model[$index].p | number:2 }}
-					div(ng-show="debug") model0: {{ model0 | json }}
-				.span3.well(drop-area='filelist')
-					textarea(plot-data-input-field, ng-model='data', rows="9")
-					button.btn(file-select='filelist') select file
-					button.btn(ng-click="sort()") sort
+					.span7(ng-show="debug") {{ data.slice(0,10) | json }}
+					//div(ng-show="debug") model0: {{ model0 | json }}
+				.span5(drop-area='filelist')
+					.span2
+						textarea.span2(plot-data-input-field='data', rows="7")
+					.span2
+						button.btn(file-select='filelist') select file
+						button.btn(ng-click="sort()") sort
 
 	// build:js scripts/vendors.js
 	script(src='components/jquery/jquery.js')

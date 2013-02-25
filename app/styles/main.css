@@ -11,3 +11,4 @@ input:focus { background-color: yellow; }
 */
 .opened:before { content: "▲" }
 .closed:before { content: "▼" }
+.accordion-header { cursor: pointer; }

@@ -48,7 +48,28 @@ var estimateInitialParam = function( h, K ) {
   ];
 };
 
-app.controller('MainCtrl', ['$scope', function( $scope ) {
+app.factory('filelistLoader', function() {
+  return {
+    load: function( filelist, done ) {
+      var filenames = [];
+      angular.forEach( filelist, function( file, i ) {
+        var reader = new FileReader();
+        reader.onload = function( event ) {
+          var text = event.target.result;
+          var data = text.split(/[#\s]+/)
+          .map(function(v) {return +v;})
+          .filter(function(v) {return v > 0;});
+          done( i, data );
+        };
+        reader.readAsText( file );
+        filenames[i] = file.name;
+      });
+      return filenames;
+    }
+  };
+});
+
+app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, filelistLoader ) {
 
   var default_sample = [
       4391, 4359, 4328, 3938, 4359, 4313, 4500, 3906, 4344, 4546, 4109, 4469, 4531,
@@ -142,10 +163,25 @@ app.controller('MainCtrl', ['$scope', function( $scope ) {
     }
   };
 
+  $scope.$watch('dropFiles', function( files ) {
+    if ( !files ) return;
+    console.log("files droppped into the plot.", files );
+    $scope.dataset = [];
+    var filenames = filelistLoader.load(files, function( i, data ) {
+      angular.copy( data, $scope.dataset[ i ].data );
+      $scope.$apply();
+    });
+    filenames.forEach(function( name ) {
+      var ds = angular.copy( defaultdataset );
+      angular.extend( ds, { name: name, data: [] });
+      $scope.dataset.push( ds );
+    });
+  });
+
 }]);  // Main Controller 
 
 
-app.controller('DataItemCtrl', ['$scope', function( $scope ) {
+app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, filelistLoader ) {
 
   $scope.binsize = 50;
 
@@ -171,8 +207,8 @@ app.controller('DataItemCtrl', ['$scope', function( $scope ) {
   };
 
   $scope.$watch('data', function( data ) {
-    if ( !data ) return;
-    console.log('data updated.');
+    if ( !data || data.length < 3 ) return;
+    console.log('data updated: ', data.slice(0, 5));
     $scope.binsize = (function( data ) {
       var N = data.length,
       k = Math.ceil(1 + Math.log(N, 2));
@@ -186,30 +222,22 @@ app.controller('DataItemCtrl', ['$scope', function( $scope ) {
     $scope.h = get_histogram( $scope.binsize, $scope.data );
     $scope.model0 = $scope.model0 || estimateInitialParam( $scope.h );
     $scope.run_estimation( $scope.model0, $scope.data );
-  });
+  }, true);
 
   $scope.$watch('filelist', function( filelist ) {
     if ( !filelist ) return;
-    console.log( filelist );
-    var onload = function( event ) {
-      var text = event.target.result;
-      $scope.data = text.split(/[#\s]+/)
-      .map(function(v) {return +v;})
-      .filter(function(v) {return v > 0;});
+    console.log("filelist changed : ", filelist );
+    $scope.ds.name = filelistLoader.load( filelist, function( index, data ) {
+      if ( index !== 0 ) return;
+      angular.copy( data, $scope.data );
       $scope.$apply();
-    };
-    for ( var i = filelist.length - 1; i >= 0; i-- ) {
-      var file = filelist[i];
-      var reader = new FileReader();
-      reader.onload = onload;
-      reader.readAsText( file );
-      $scope.ds.name = file.name;
-    }
-  }, true);
+      console.log( index, $scope.data.slice(0,5) );
+    })[0];
+  });
 
   $scope.sort = function() {
     console.log('sort triggered');
-    $scope.data = angular.copy( $scope.data.sort() );
+    $scope.data.sort();
   };
 
   $scope.remove = function( index ) {
