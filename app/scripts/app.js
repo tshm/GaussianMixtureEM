@@ -150,18 +150,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
   }, true);
 
   $scope.plotclick = function( args ) {
-    var onCharaPoints = ( args.seriesIndex % 2 === 0 ),
-      model0 = $scope.dataset[ Math.floor( args.seriesIndex / 3 ) ].model0;
-    //console.log([onCharaPoints, datasetIndex]);
-    if ( onCharaPoints ) {
-      model0[ args.dataIndex ].focus = true;
-      $scope.$apply();
-    } else {
-      model0.forEach(function( m, i ) {
-        if ( !m.focus ) return;
-        model0[ i ].m = args.x;
-      });
-    }
+    $scope.$broadcast('plotclick', args);
   };
 
   $scope.$watch('dropFiles', function( files ) {
@@ -234,6 +223,14 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
       $scope.$apply();
       console.log( index, $scope.data.slice(0,5) );
     })[0];
+  });
+
+  $scope.$on('plotclick', function( msg, arg ) {
+    console.log('plotclick', msg, arg );
+    $scope.model0.forEach(function( m0, i ) {
+      if ( !m0.focus ) return;
+      $scope.model0[ i ].m = arg.x;
+    });
   });
 
   $scope.sort = function() {
