@@ -76,7 +76,7 @@ body(ng-app='emjsApp')
 									span.badge {{ $index }}
 								td
 									input.input.input-small(type='number',ng-model='model0[$index].m',focus='model0[$index].focus')
-									a(ng-click='remove($index)') &times;
+									a(ng-click='remove($index)',href="#") ✗
 								td {{ result.model[$index].m | number:0 }}
 								td {{ result.model[$index].s | number:0 }}
 								td {{ result.model[$index].p | number:2 }}

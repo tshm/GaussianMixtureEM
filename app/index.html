@@ -59,7 +59,7 @@
               <tr ng-repeat="m in model0">
                 <td><span class="badge">{{ $index }}</span></td>
                 <td>
-                  <input type="number" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)">&times;</a>
+                  <input type="number" ng-model="model0[$index].m" focus="model0[$index].focus" class="input input-small"><a ng-click="remove($index)" href="#">✗</a>
                 </td>
                 <td>{{ result.model[$index].m | number:0 }}</td>
                 <td>{{ result.model[$index].s | number:0 }}</td>
