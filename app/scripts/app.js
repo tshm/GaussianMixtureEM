@@ -132,11 +132,12 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
     $scope.dataset.forEach(function( ds, i ) {
       //console.log( $scope.dataset.length, ds, i );
       if ( !ds.show ) return;
-      var obj = make_graph_for_single_dataset( ds.result.h, ds.result.model, ds.result.em.g );
+      var result = ds.result;
+      var obj = make_graph_for_single_dataset( result.h, result.model, result.pdf );
       if ( !obj ) return;
       var label = i + ": " + ds.name;
       // histogram
-      $scope.graphdata.push({ color: i, data: ds.result.h, bars: { show: true, barWidth: obj.binsize } });
+      $scope.graphdata.push({ color: i, data: result.h, bars: { show: true, barWidth: obj.binsize } });
       // estimated pdf
       $scope.graphdata.push({ color: i, label: label, data: obj.gg, lines: { show: true } });
       // characteristice points
@@ -201,7 +202,7 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
     console.log( $scope.em );
     $scope.em.run();
     angular.copy( $scope.em.get_result(), $scope.result );
-    $scope.result.em = $scope.em;
+    $scope.result.pdf = $scope.em.g;
     $scope.result.h = $scope.h;
     $scope.calculating = false;
   };

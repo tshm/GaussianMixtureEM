@@ -78,8 +78,9 @@ app.directive('plotDataInputField', function() {
         elem.val( array ? array.join('\n') : '' );
       }, true);
       elem.bind('change', function() {
-        var arr = text.split(/\n/).map(function (v) { return +v; });
+        var arr = elem.val().split(/\n/).map(function (v) { return +v; });
         angular.copy( arr, scope.array );
+        scope.$apply();
       });
     }
   };
