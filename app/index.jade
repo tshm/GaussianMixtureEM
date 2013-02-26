@@ -32,36 +32,30 @@ body(ng-app='emjsApp')
 		script(src='scripts/vendor/json3.min.js')
 	.container(ng-controller='MainCtrl',ng-init='debug = #{debug}')
 		h2 Expectation Maximization for Gaussian Mixture
-		div(ng-init='step = false',ng-show='step')
-			button(ng-click='iterate()') Step
-			button(ng-click='run()') RUN
 
 		.row
 			.span8
-				//span(ng-show='result.L ') LogLikelihood :
-				//	span.label {{ result.L | number:2 }}
 				div.loading(ng-show='calculating')
 				div(ng-hide='calculating',drop-area='dropFiles')
-					#plot(flot='graphdata',flot-options='graphoptions',click='plotclick(args)')
-				//div {{ graphdata }}
-			.span4(ng-show="debug") {{ dataset[0].data.slice(0,5) | json }}
+					#plot(flot='graphdata', click='plotclick(args)')
+			.span4(ng-show="debug") {{ datasets[0].samples.slice(0,5) | json }}
 
-		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; filelist=ds.filelist; result=ds.result")
-			.span12.leftm(style="border-color: {{ ds.color }}")
+		.row(ng-controller="DataItemCtrl",ng-repeat="dataset in datasets")
+			.span12.leftm(style="border-color: {{ dataset.color }}")
 				span.btn-group
 					a.btn.btn-mini.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
-						| {{ $index }} : {{ ds.name }}
-					//a.btn.btn-mini(title="toggle graph",ng-click="ds.show=!ds.show") {{ ds.show && "▂" || "⬜" }}
-					a.btn.btn-mini(title="toggle graph",ng-click="ds.show=!ds.show",ng-class='ds.show && "btn-inverse"') 💡
+						| {{ $index }} : {{ dataset.name }}
+					//a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show") {{ dataset.show && "▂" || "⬜" }}
+					a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show",ng-class='dataset.show && "btn-inverse"') 💡
 					a.btn.btn-mini.btn-success(title="insert dataset",ng-click="addDataSet($index)") ✚
-					a.btn.btn-mini.btn-danger(title="delete dataset",ng-click="dataset.splice($index,1)",ng-hide="dataset.length==1") ✗
-			form.form.form-inline(ng-hide="hide",ng-submit='setInitialCondition(model0)')
+					a.btn.btn-mini.btn-danger(title="delete dataset",ng-click="datasets.splice($index,1)",ng-hide="datasets.length==1") ✗
+			div.form.form-inline(ng-hide="hide")
 				.span7
 					.pull-right
 						label binsize:
-							input.input.input-small(type='text',ng-model='binsize')
-						button.btn.btn-small(ng-click='model0.push({m:0,s:30,p:1,focus:true})') add cluster
-						input.btn.btn-small.btn-success(type='submit')
+							input.input.input-small(type='text',ng-model='dataset.histogram.binsize')
+						button.btn.btn-small(ng-click='init_params.push({m:0,s:30,p:1,focus:true})') add cluster
+						input.btn.btn-small.btn-success(type='submit',ng-click='setInitialCondition(init_params)')
 					table.table.table-striped.table-condensed
 						thead
 							tr
@@ -71,22 +65,22 @@ body(ng-app='emjsApp')
 								th result_s
 								th result_p
 						tbody
-							tr(ng-repeat='m in model0')
+							tr(ng-repeat='param in init_params')
 								td
 									span.badge {{ $index }}
 								td
-									input.input.input-small(type='number',ng-model='model0[$index].m',focus='model0[$index].focus')
+									input.input.input-small(type='number',ng-model='param.m',focus='param.focus')
 									a(ng-click='remove($index)',href="#") ✗
-								td {{ result.model[$index].m | number:0 }}
-								td {{ result.model[$index].s | number:0 }}
-								td {{ result.model[$index].p | number:2 }}
-					.span7(ng-show="debug") {{ data.slice(0,10) | json }}
-					//div(ng-show="debug") model0: {{ model0 | json }}
-				.span5(drop-area='filelist')
+								td {{ dataset.model.params[$index].m | number:0 }}
+								td {{ dataset.model.params[$index].s | number:0 }}
+								td {{ dataset.model.params[$index].p | number:2 }}
+					.span7(ng-show="debug") {{ dataset.samples.slice(0,10) | json }}
+					//div(ng-show="debug") init_params: {{ init_params | json }}
+				.span5(drop-area='dataset.filelist')
 					.span2
-						textarea.span2(plot-data-input-field='data', rows="7")
+						textarea.span2(arr-bind='dataset.samples', rows="7")
 					.span2
-						button.btn.btn-primary(file-select='filelist') 📂  open file
+						button.btn.btn-primary(file-select='dataset.filelist') 📂  open file
 						button.btn(ng-click="sort()") ⇵ sort
 
 	// build:js scripts/vendors.js

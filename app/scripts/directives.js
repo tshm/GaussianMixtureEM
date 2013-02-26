@@ -1,59 +1,63 @@
 var app = angular.module('emjsAppDirectives', []);
 
 app.directive('dropArea', function() {
-  return function( scope, elm, attrs ) {
-    elm.bind('dragover', function( event ) {
-      event.stopPropagation();
-      event.preventDefault();
-    });
-    elm.bind('drop', function( event ) {
-      event.stopPropagation();
-      event.preventDefault();
-      scope.$apply(function( scope ) {
-        //console.log(event);
-        //console.log( event.dataTransfer.files,  attrs.dropArea );
-        scope[ attrs.dropArea ] = event.originalEvent.dataTransfer.files;
+  return {
+    scope: { files: "=dropArea" },
+    transclude: true,
+    template: '<div ng-transclude></div>',
+    link: function( scope, elm, attrs ) {
+      elm.bind('dragover', function( event ) {
+        event.stopPropagation();
+        event.preventDefault();
       });
-    });
+      elm.bind('drop', function( event ) {
+        event.stopPropagation();
+        event.preventDefault();
+        scope.$apply(function() {
+          scope.files = event.originalEvent.dataTransfer.files;
+        });
+      });
+    }
   };
 });
 
 app.directive('fileSelect', function() {
   var template = '<input type="file" multiple name="files" style="display:none"/>';
-  return function( scope, elem, attrs ) {
-    var selector = $( template );
-    elem.append(selector);
-    selector.bind('change', function( event ) {
-      scope.$apply(function() {
-        scope[ attrs.fileSelect ] = event.originalEvent.target.files;
+  return {
+    scope: { files: '=fileSelect' },
+    link: function( scope, elem, attrs ) {
+      var selector = $( template );
+      elem.append(selector);
+      selector.bind('change', function( event ) {
+        scope.$apply(function() {
+          scope.files = event.originalEvent.target.files;
+        });
       });
-    });
-    selector.click(function( event ) {
-      event.stopPropagation();
-    });
-    elem.bind('click', function( event ) {
-      event.stopPropagation();
-      event.preventDefault();
-      selector.click();
-    });
+      selector.click(function( event ) {
+        event.stopPropagation();
+      });
+      elem.bind('click', function( event ) {
+        event.stopPropagation();
+        event.preventDefault();
+        selector.click();
+      });
+    }
   };
 });
 
 app.directive('flot', function() {
   return {
-    scope: { data: '=flot', options: '=flotOptions', click: '&' },
+    scope: { graphdata: '=flot', click: '&' },
     replace: false,
     link: function( scope, elm, attrs ) {
-      var updateplot = function() {
-        if ( !scope.data || !scope.options ) return;
-        //console.log([scope.data, scope.options]);
-        $.plot( elm, scope.data, scope.options );
-      };
-      scope.$watch('data',   updateplot);
-      scope.$watch('options',updateplot);
+      scope.$watch('graphdata', function( data ) {
+        if ( !data.series || !data.options ) return;
+        //console.log(data.series, data.options);
+        $.plot( elm, data.series, data.options );
+      }, true);
       //
       elm.bind('plotclick', function( event, pos, item ) {
-        //console.log([event, pos, item]);
+        //console.log(vent, pos, item]);
         var args = { x: pos.x, y: pos.y };
         if ( item ) {
           args.dataIndex = item.dataIndex;
@@ -69,10 +73,10 @@ app.directive('flot', function() {
   };
 });
 
-app.directive('plotDataInputField', function() {
+app.directive('arrBind', function() {
   return {
     restrict: 'A',
-    scope: { array: '=plotDataInputField' },
+    scope: { array: '=arrBind' },
     link: function( scope, elem, attrs ) {
       scope.$watch('array', function( array ) {
         elem.val( array ? array.join('\n') : '' );

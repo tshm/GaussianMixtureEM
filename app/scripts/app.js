@@ -1,42 +1,42 @@
 var app = angular.module('emjsApp', ['emjsAppDirectives']);
 
-var hist = function( data, min, binsize, N ) {
-  var bin = [], inc = 1.0 / data.length;
+var hist = function( samples, min, binsize, N ) {
+  var bins = [], inc = 1.0 / samples.length;
   var min1 = min - binsize/2;
   for (var i = 0; i < N; i++)  // initialize
-    bin[i] = [min1 + i*binsize, 0];
-  angular.forEach(data, function(v) {
+    bins[i] = [min1 + i*binsize, 0];
+  angular.forEach( samples, function( v ) {
     var index = Math.floor( ( v - min1 ) / binsize );
     index = ( index < 0   ?   0 : index );
     index = ( index > N-1 ? N-1 : index );
-    bin[index][1] += inc;
+    bins[index][1] += inc;
   });
-  //console.log( bin );
-  return bin;
+  //console.log('bins: ', bins );
+  return bins;
 };
 
-var get_histogram = function( binsize, data ) {
-  var min = data[0], max = min, N, k;
-  angular.forEach( data, function(v) {
+var get_histogram = function( binsize, samples ) {
+  var min = samples[0], max = min, N, k;
+  angular.forEach( samples, function(v) {
     if ( v < min ) min = v;
     if ( max < v ) max = v;
   });
   //console.log([min,max]);
   N = 5 + Math.floor( ( max - min ) / binsize );
-  return hist( data, min - 2 * binsize, binsize, N );
+  return hist( samples, min - 2 * binsize, binsize, N );
 };
 
-var estimateInitialParam = function( h, K ) {
+var estimateInitialParam = function( bins, K ) {
   //console.log('estimateInitialParam.');
   var max_pos = 0, max = 0;
-  for (var i = 0; i < h.length; i++) {
-    if ( max < h[i][1] ) {
-      max = h[i][1];
-      max_pos = h[i][0];
+  for (var i = 0; i < bins.length; i++) {
+    if ( max < bins[i][1] ) {
+      max = bins[i][1];
+      max_pos = bins[i][0];
     }
   }
-  var center = 0.5 * (h[0][0] + h[h.length-1][0]),
-  range = ( h[h.length-1][0] - h[0][0] ) / 8.0,
+  var center = 0.5 * (bins[0][0] + bins[bins.length-1][0]),
+  range = ( bins[bins.length-1][0] - bins[0][0] ) / 8.0,
   pos = parseInt( (max_pos - center) / range, 10 );
   //console.log( [center, range, pos, max_pos] );
   if (1 <= pos)  max_pos -= 500;
@@ -84,42 +84,45 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
   var defaultdataset = {
     name: 'sample_data',
     show: true,
-    data: default_sample,
-    result: {}
+    samples: default_sample,
+    histogram: { binsize: null, bins: [] },
+    model: { params: [], pdf: null }
   };
 
-  $scope.dataset = [ angular.copy( defaultdataset ) ];
+  $scope.datasets = [ angular.copy( defaultdataset ) ];
 
   $scope.addDataSet = function( index ) {
-    $scope.dataset.splice( 1+index, 0, angular.copy( defaultdataset ));
+    $scope.datasets.splice( 1+index, 0, angular.copy( defaultdataset ));
   };
 
   var draw_hook = function( plot ) {
     var series = plot.getData(), j = 0;
-    $scope.dataset.forEach(function( ds ) {
-      ds.color = ( ds.show && series[j*3] && series[j++*3].color || "#FFF" );
+    $scope.datasets.forEach(function( dataset ) {
+      dataset.color = ( dataset.show && series[j*3] && series[j++*3].color || "#FFF" );
     });
   };
 
-  $scope.graphdata = [];
-  $scope.graphoptions = {
-    series: {
-      //bars: { barWidth: binsize }
-      //lines: { show: true },
-      //points: { show: true }
-    },
-    hooks: { draw: [draw_hook] },
-    //selection: {mode: 'x'},
-    grid: { hoverable: true, clickable: true }
+  $scope.graphdata = {
+    series: [],
+    options: {
+      series: {
+        //bars: { barWidth: binsize }
+        //lines: { show: true },
+        //points: { show: true }
+      },
+      hooks: { draw: [draw_hook] },
+      //selection: {mode: 'x'},
+      grid: { hoverable: true, clickable: true }
+    }
   };
 
   $scope.make_graphdata = function() {
-    $scope.graphdata = [];
+    var series = [];
 
-    var make_graph_for_single_dataset = function( h, model, pdf ) {
-      if ( !h || !model || !pdf ) return;
-      var min = h[0][0], max = h[h.length-1][0], binsize = (max-min)/(h.length-1);
-      var gg = [], means = [];
+    var make_graph_for_single_dataset = function( bins, model, pdf ) {
+      if ( !bins || !model || !pdf ) return;
+      var min = bins[0][0], max = bins[bins.length-1][0], binsize = (max-min)/(bins.length-1);
+      var pdist = [], means = [];
       if ( model ) {
         // Gaussian mixture graph
         for (var x = min; x < max; x+=0.1*binsize) {
@@ -127,33 +130,34 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
           for (k=0; k < model.length; k++) {
             f += model[k].p * pdf(x, model[k].m, model[k].s);
           }
-          gg.push([ x, binsize * f ]);
+          pdist.push([ x, binsize * f ]);
         }
         // means
         for (k=0; k < model.length; k++) {
           means[k] = [ model[k].m, 0 ];
         }
       }
-      return { binsize: binsize, gg: gg, means: means };
+      return { binsize: binsize, pdist: pdist, means: means };
     };
 
-    $scope.dataset.forEach(function( ds, i ) {
-      //console.log( $scope.dataset.length, ds, i );
-      if ( !ds.show ) return;
-      var result = ds.result;
-      var obj = make_graph_for_single_dataset( result.h, result.model, result.pdf );
+    $scope.datasets.forEach(function( dataset, i ) {
+      //console.log( $scope.datasets.length, dataset, i );
+      if ( !dataset.show ) return;
+      var obj = make_graph_for_single_dataset( dataset.histogram.bins, dataset.model.params, dataset.model.pdf );
       if ( !obj ) return;
-      var label = i + ": " + ds.name;
+      var label = i + ": " + dataset.name;
       // histogram
-      $scope.graphdata.push({ color: i, data: result.h, bars: { show: true, barWidth: obj.binsize } });
+      series.push({ color: i, data: dataset.histogram.bins, bars: { show: true, barWidth: obj.binsize } });
       // estimated pdf
-      $scope.graphdata.push({ color: i, label: label, data: obj.gg, lines: { show: true } });
+      series.push({ color: i, label: label, data: obj.pdist, lines: { show: true } });
       // characteristice points
-      $scope.graphdata.push({ color: i, points: { show: true }, data: obj.means });
+      series.push({ color: i, points: { show: true }, data: obj.means });
     });
+
+    $scope.graphdata.series = series;
   };
 
-  $scope.$watch('dataset', function( dataset ) {
+  $scope.$watch('datasets', function() {
     $scope.make_graphdata();
   }, true);
 
@@ -164,15 +168,15 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
   $scope.$watch('dropFiles', function( files ) {
     if ( !files ) return;
     console.log("files droppped into the plot.", files );
-    $scope.dataset = [];
+    $scope.datasets = [];
     var filenames = filelistLoader.load(files, function( i, data ) {
-      angular.copy( data, $scope.dataset[ i ].data );
+      $scope.datasets[ i ].samples = data;
       $scope.$apply();
     });
     filenames.forEach(function( name ) {
-      var ds = angular.copy( defaultdataset );
-      angular.extend( ds, { name: name, data: [] });
-      $scope.dataset.push( ds );
+      var dataset = angular.copy( defaultdataset );
+      angular.extend( dataset, { name: name, samples: [] });
+      $scope.datasets.push( dataset );
     });
   });
 
@@ -181,75 +185,77 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
 
 app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, filelistLoader ) {
 
-  $scope.binsize = 50;
-
-  $scope.setInitialCondition = function( model0 ) {
-    $scope.run_estimation( model0, $scope.data );
+  $scope.setInitialCondition = function( init_params ) {
+    console.log('setInitialCondition called.');
+    $scope.run_estimation( init_params, $scope.dataset.samples );
   };
 
-  $scope.$watch('binsize', function( binsize ) {
+  $scope.$watch('dataset.histogram.binsize', function( binsize ) {
     if ( !binsize ) return;
-    $scope.h = get_histogram( binsize, $scope.data );
+    $scope.dataset.histogram.bins = get_histogram( binsize, $scope.dataset.samples );
   });
 
-  $scope.run_estimation = function( model, data ) {
-    //console.log( model, data );
+  $scope.run_estimation = function( params, samples ) {
+    //console.log( params, samples );
     $scope.calculating = true;
-    $scope.em = new GMEM( data, model );
+    $scope.em = new GMEM( samples, params );
     console.log( $scope.em );
     $scope.em.run();
-    angular.copy( $scope.em.get_result(), $scope.result );
-    $scope.result.pdf = $scope.em.g;
-    $scope.result.h = $scope.h;
+    var result = $scope.em.get_result();
+    $scope.dataset.model.params = result.model;
+    $scope.dataset.model.L = result.L;
+    $scope.dataset.model.pdf = $scope.em.g;
     $scope.calculating = false;
   };
 
-  $scope.$watch('data', function( data ) {
-    if ( !data || data.length < 3 ) return;
-    console.log('data updated: ', data.slice(0, 5));
-    $scope.binsize = (function( data ) {
-      var N = data.length,
+  $scope.$watch('dataset.samples', function( samples ) {
+    if ( !samples || samples.length < 3 ) return;
+    console.log('samples updated: ', samples.slice(0, 5));
+    $scope.dataset.histogram.binsize = (function( samples ) {
+      var N = samples.length,
       k = Math.ceil(1 + Math.log(N, 2));
-      var min = data[0], max = data[0];
+      var min = samples[0], max = samples[0];
       for (var i = 0; i < N; i++) {
-        if ( data[i] < min ) min = data[i];
-        if ( data[i] > max ) max = data[i];
+        if ( samples[i] < min ) min = samples[i];
+        if ( samples[i] > max ) max = samples[i];
       }
       return Math.round( (max - min) / Math.sqrt( N ) / 3 );
-    })( data );
-    $scope.h = get_histogram( $scope.binsize, $scope.data );
-    $scope.model0 = $scope.model0 || estimateInitialParam( $scope.h );
-    $scope.run_estimation( $scope.model0, $scope.data );
+    })( samples );
+    $scope.dataset.histogram.bins = get_histogram( $scope.dataset.histogram.binsize, samples );
+    $scope.init_params = $scope.init_params || estimateInitialParam( $scope.dataset.histogram.bins );
+    $scope.run_estimation( $scope.init_params, samples );
   }, true);
 
-  $scope.$watch('filelist', function( filelist ) {
+  //$scope.$watch('dataset.model.params', function( init_params ) { $scope.run_estimation( init_params, $scope.dataset.samples ); });
+
+  $scope.$watch('dataset.filelist', function( filelist ) {
     if ( !filelist ) return;
     console.log("filelist changed : ", filelist );
-    $scope.ds.name = filelistLoader.load( filelist, function( index, data ) {
+    $scope.dataset.name = filelistLoader.load( filelist, function( index, data ) {
       if ( index !== 0 ) return;
-      angular.copy( data, $scope.data );
+      $scope.dataset.samples = data;
       $scope.$apply();
-      console.log( index, $scope.data.slice(0,5) );
+      console.log( index, $scope.dataset.samples.slice(0,5) );
     })[0];
   });
 
   $scope.$on('plotclick', function( msg, arg ) {
     console.log('plotclick', msg, arg );
-    $scope.model0.forEach(function( m0, i ) {
+    $scope.init_params.forEach(function( m0, i ) {
       if ( !m0.focus ) return;
-      $scope.model0[ i ].m = arg.x;
+      $scope.init_params[ i ].m = arg.x;
     });
   });
 
   $scope.sort = function() {
     console.log('sort triggered');
-    $scope.data.sort();
+    $scope.dataset.samples.sort();
   };
 
   $scope.remove = function( index ) {
-    delete $scope.model0[index];
-    $scope.model0.splice( index, 1 );
-    $scope.setInitialCondition( $scope.model0 );
+    delete $scope.init_params[index];
+    $scope.init_params.splice( index, 1 );
+    $scope.setInitialCondition( $scope.init_params );
   };
 
 }]);  // DataItem Controller
