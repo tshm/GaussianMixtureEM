@@ -47,7 +47,7 @@ body(ng-app='emjsApp')
 			.span4(ng-show="debug") {{ dataset[0].data.slice(0,5) | json }}
 
 		.row(ng-controller="DataItemCtrl",ng-repeat="ds in dataset",ng-init="data=ds.data; filelist=ds.filelist; result=ds.result")
-			.span12
+			.span12.leftm(style="border-color: {{ ds.color }}")
 				span.btn-group
 					a.btn.btn-mini.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
 						| {{ $index }} : {{ ds.name }}

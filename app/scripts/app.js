@@ -94,6 +94,13 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
     $scope.dataset.splice( 1+index, 0, angular.copy( defaultdataset ));
   };
 
+  var draw_hook = function( plot ) {
+    var series = plot.getData(), j = 0;
+    $scope.dataset.forEach(function( ds ) {
+      ds.color = ( ds.show && series[j*3] && series[j++*3].color || "#FFF" );
+    });
+  };
+
   $scope.graphdata = [];
   $scope.graphoptions = {
     series: {
@@ -101,6 +108,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
       //lines: { show: true },
       //points: { show: true }
     },
+    hooks: { draw: [draw_hook] },
     //selection: {mode: 'x'},
     grid: { hoverable: true, clickable: true }
   };

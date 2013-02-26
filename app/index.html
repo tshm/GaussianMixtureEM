@@ -15,7 +15,7 @@
   <p class="chromeframe">You are using an outdated browser.<a href="http://browsehappy.com/">Upgrade your browser today</a>or<a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a>to better experience this site.</p><![endif]--><!--[if lt IE 9]>
   <script src="scripts/vendor/es5-shim.min.js"></script>
   <script src="scripts/vendor/json3.min.js"></script><![endif]-->
-  <div ng-controller="MainCtrl" ng-init="debug = false" class="container">
+  <div ng-controller="MainCtrl" ng-init="debug = true" class="container">
     <h2>Expectation Maximization for Gaussian Mixture</h2>
     <div ng-init="step = false" ng-show="step">
       <button ng-click="iterate()">Step</button>
@@ -34,7 +34,7 @@
       <div ng-show="debug" class="span4">{{ dataset[0].data.slice(0,5) | json }}</div>
     </div>
     <div ng-controller="DataItemCtrl" ng-repeat="ds in dataset" ng-init="data=ds.data; filelist=ds.filelist; result=ds.result" class="row">
-      <div class="span12"><span class="btn-group"><a ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}" class="btn btn-mini accordion-header">{{ $index }} : {{ ds.name }}</a>
+      <div style="border-color: {{ ds.color }}" class="span12 leftm"><span class="btn-group"><a ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}" class="btn btn-mini accordion-header">{{ $index }} : {{ ds.name }}</a>
           <!--a.btn.btn-mini(title="toggle graph",ng-click="ds.show=!ds.show") {{ ds.show && "▂" || "⬜" }}--><a title="toggle graph" ng-click="ds.show=!ds.show" ng-class="ds.show &amp;&amp; &quot;btn-inverse&quot;" class="btn btn-mini">💡</a><a title="insert dataset" ng-click="addDataSet($index)" class="btn btn-mini btn-success">✚</a><a title="delete dataset" ng-click="dataset.splice($index,1)" ng-hide="dataset.length==1" class="btn btn-mini btn-danger">✗</a></span></div>
       <form ng-hide="hide" ng-submit="setInitialCondition(model0)" class="form form-inline">
         <div class="span7">

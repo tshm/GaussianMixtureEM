@@ -7,4 +7,5 @@ input:focus { background-color: yellow; }
 /* accordion icons */
 .opened:before { content: "▲" }
 .closed:before { content: "▼" }
-.accordion-header { cursor: pointer; }
+
+.leftm { border-left: 5px solid }
