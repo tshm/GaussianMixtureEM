@@ -46,9 +46,10 @@ body(ng-app='emjsApp')
 					a.btn.btn-mini.accordion-header(ng-click="hide=!hide",ng-class="{opened: hide, closed: !hide}")
 						| {{ $index }} : {{ dataset.name }}
 					//a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show") {{ dataset.show && "▂" || "⬜" }}
-					a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show",ng-class='dataset.show && "btn-inverse"') 💡
-					a.btn.btn-mini.btn-success(title="insert dataset",ng-click="addDataSet($index)") ✚
-					a.btn.btn-mini.btn-danger(title="delete dataset",ng-click="datasets.splice($index,1)",ng-hide="datasets.length==1") ✗
+					a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show",ng-class='dataset.show && "btn-inverse"')
+						| {{ dataset.show && "hide" || "show" }}
+					a.btn.btn-mini.btn-success(title="insert dataset",ng-click="addDataSet($index)") +
+					a.btn.btn-mini.btn-danger(title="delete dataset",ng-click="datasets.splice($index,1)",ng-hide="datasets.length==1") &times;
 			div.form.form-inline(ng-hide="hide")
 				.span7
 					.pull-right
@@ -70,7 +71,7 @@ body(ng-app='emjsApp')
 									span.badge {{ $index }}
 								td
 									input.input.input-small(type='number',ng-model='param.m',focus='param.focus')
-									a(ng-click='remove($index)',href="#") ✗
+									a(ng-click='remove($index)',href="#") &times;
 								td {{ dataset.model.params[$index].m | number:0 }}
 								td {{ dataset.model.params[$index].s | number:0 }}
 								td {{ dataset.model.params[$index].p | number:2 }}
@@ -80,8 +81,8 @@ body(ng-app='emjsApp')
 					.span2
 						textarea.span2(arr-bind='dataset.samples', rows="7")
 					.span2
-						button.btn.btn-primary(file-select='dataset.filelist') 📂  open file
-						button.btn(ng-click="sort()") ⇵ sort
+						button.btn.btn-primary(file-select='dataset.filelist') open file
+						button.btn(ng-click="sort()") &harr; sort
 
 	// build:js scripts/vendors.js
 	script(src='components/jquery/jquery.js')
