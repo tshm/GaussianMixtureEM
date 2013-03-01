@@ -103,6 +103,10 @@ The base and overlay canvas are now using the CSS classes "flot-base" and
 
  - Added a new option called 'zero' to bars and filled lines series, to control
    whether the y-axis minimum is scaled to fit the data or set to zero.
+   (patch by David Schnur, issues #316, #529, and #856, pull request #911)
+
+ - The plot function is now also a jQuery chainable property.
+   (patch by David Schnur, issues #734 and #816, pull request #953)
 
 ### Bug fixes ###
 
@@ -182,6 +186,21 @@ The base and overlay canvas are now using the CSS classes "flot-base" and
  - Fixed rendering issues when using the threshold plugin with several series.
    (patch by Ivan Novikov, pull request #934)
 
+ - Pie charts no longer disappear when redrawn after calling setData().
+   (reported by zengge1984 and pareeohnos, issues #810 and #945)
+
+ - Added a work-around for the problem where points with a lineWidth of zero
+   still showed up with a visible line. (reported by SalvoSav, issue #842,
+   patch by Jamie Hamel-Smith, pull request #937)
+
+ - Pie charts now accept values in string form, like other plot types.
+   (reported by laerdal.no, issue #534)
+
+ - Avoid rounding errors in the threshold plugin.
+   (reported by jerikojerk, issue #895)
+
+ - Fixed an error when using the navigate plugin with jQuery 1.9.x or later.
+   (reported by Paolo Valleri, issue #964)
 
 
 ## Flot 0.7 ##

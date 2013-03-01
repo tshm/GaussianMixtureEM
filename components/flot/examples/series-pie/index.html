@@ -12,13 +12,13 @@
 	}
 
 	#placeholder {
-		width: 600px;
+		width: 550px;
 	}
 
 	#menu {
 		position: absolute;
 		top: 20px;
-		left: 675px;
+		left: 625px;
 		bottom: 20px;
 		right: 20px;
 		width: 200px;
@@ -435,7 +435,7 @@
 			placeholder.unbind();
 
 			$("#title").text("Combined Slice");
-			$("#description").text("All slices less than a given percentage of the pie can be combined into a single, larger slice (10% in this case).");
+			$("#description").text("Multiple slices less than a given percentage (5% in this case) of the pie can be combined into a single, larger slice.");
 
 			$.plot(placeholder, data, {
 				series: {
@@ -443,7 +443,7 @@
 						show: true,
 						combine: {
 							color: "#999",
-							threshold: 0.1
+							threshold: 0.05
 						}
 					}
 				},
@@ -689,7 +689,7 @@
 
 		<h3 id="title"></h3>
 		<div class="demo-container">
-			<div id="placeholder"></div>
+			<div id="placeholder" class="demo-placeholder"></div>
 			<div id="menu">
 				<button id="example-1">Default Options</button>
 				<button id="example-2">Without Legend</button>

@@ -112,6 +112,10 @@
 			setTimeout(fetchData, 1000);
 		});
 
+		// Load the first series by default, so we don't have an empty plot
+
+		$("button.fetchSeries:first").click();
+
 		// Add the Flot version string to the footer
 
 		$("#footer").prepend("Flot " + $.plot.version + " &ndash; ");
@@ -128,7 +132,7 @@
 	<div id="content">
 
 		<div class="demo-container">
-			<div id="placeholder"></div>
+			<div id="placeholder" class="demo-placeholder"></div>
 		</div>
 
 		<p>Example of loading data dynamically with AJAX. Percentage change in GDP (source: <a href="http://epp.eurostat.ec.europa.eu/tgm/table.do?tab=table&init=1&plugin=1&language=en&pcode=tsieb020">Eurostat</a>). Click the buttons below:</p>

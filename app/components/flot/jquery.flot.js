@@ -1629,7 +1629,7 @@ Licensed under the MIT license.
 
                     xoff = yoff = 0;
 
-                    if (v < axis.min || v > axis.max
+                    if (isNaN(v) || v < axis.min || v > axis.max
                         // skip those lying on the axes if we got a border
                         || (t == "full"
                             && ((typeof bw == "object" && bw[axis.position] > 0) || bw > 0)
@@ -2092,6 +2092,15 @@ Licensed under the MIT license.
                 sw = series.shadowSize,
                 radius = series.points.radius,
                 symbol = series.points.symbol;
+
+            // If the user sets the line width to 0, we change it to a very 
+            // small value. A line width of 0 seems to force the default of 1.
+            // Doing the conditional here allows the shadow setting to still be 
+            // optional even with a lineWidth of 0.
+
+            if( lw == 0 )
+                lw = 0.0001;
+
             if (lw > 0 && sw > 0) {
                 // draw shadow in two steps
                 var w = sw / 2;
@@ -2306,6 +2315,8 @@ Licensed under the MIT license.
             if (options.legend.sorted) {
                 if ($.isFunction(options.legend.sorted)) {
                     entries.sort(options.legend.sorted);
+                } else if (options.legend.sorted == "reverse") {
+                	entries.reverse();
                 } else {
                     var ascending = options.legend.sorted != "descending";
                     entries.sort(function(a, b) {
@@ -2672,6 +2683,8 @@ Licensed under the MIT license.
         }
     }
 
+    // Add the plot function to the top level of the jQuery object
+
     $.plot = function(placeholder, data, options) {
         //var t0 = new Date();
         var plot = new Plot($(placeholder), data, options, $.plot.plugins);
@@ -2682,6 +2695,14 @@ Licensed under the MIT license.
     $.plot.version = "0.8-alpha";
 
     $.plot.plugins = [];
+
+    // Also add the plot function as a chainable property
+
+    $.fn.plot = function(data, options) {
+        return this.each(function() {
+            $.plot(this, data, options);
+        });
+    }
 
     // round to nearby lower multiple of base
     function floorInBase(n, base) {

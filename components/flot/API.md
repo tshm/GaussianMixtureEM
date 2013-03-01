@@ -15,6 +15,14 @@ don't use for anything else. Make sure you check any fancy styling
 you apply to the div, e.g. background images have been reported to be a
 problem on IE 7.
 
+The plot function can also be used as a jQuery chainable property.  This form
+naturally can't return the plot object directly, but you can still access it
+via the 'plot' data key, like this:
+
+```js
+var plot = $("#placeholder").plot(data, options).data("plot");
+```
+
 The format of the data is documented below, as is the available
 options. The plot object returned from the call has some methods you
 can call. These are documented separately below.
@@ -156,7 +164,7 @@ legend: {
     backgroundColor: null or color
     backgroundOpacity: number between 0 and 1
     container: null or jQuery object/DOM element/jQuery expression
-    sorted: null/false, true, "ascending", "descending" or a comparator
+    sorted: null/false, true, "ascending", "descending", "reverse", or a comparator
 }
 ```
 
@@ -189,9 +197,10 @@ specify "container" as a jQuery object/expression to put the legend
 table into. The "position" and "margin" etc. options will then be
 ignored. Note that Flot will overwrite the contents of the container.
 
-Legend entries appear in the same order as their series by default. To
-sort them alphabetically, you can specify "sorted" as tue, "ascending"
-or "descending", where true and "ascending" are equivalent.
+Legend entries appear in the same order as their series by default. If "sorted"
+is "reverse" then they appear in the opposite order from their series. To sort
+them alphabetically, you can specify true, "ascending" or "descending", where
+true and "ascending" are equivalent.
 
 You can also provide your own comparator function that accepts two
 objects with "label" and "color" properties, and returns zero if they
