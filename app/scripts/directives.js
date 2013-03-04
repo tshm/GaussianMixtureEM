@@ -51,7 +51,7 @@ app.directive('flot', function() {
     replace: false,
     link: function( scope, elm ) {
       scope.$watch('graphdata', function( data ) {
-        if ( !data.series || !data.options ) { return; }
+        if ( !data.series || !data.options ) return;
         //console.log(data.series, data.options);
         $.plot( elm, data.series, data.options );
       }, true);

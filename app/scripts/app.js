@@ -20,8 +20,8 @@ var hist = function( samples, min, binsize, N ) {
 var getHistogram = function( binsize, samples ) {
   var min = samples[0], max = min, N;
   angular.forEach( samples, function(v) {
-    if ( v < min ) { min = v; }
-    if ( max < v ) { max = v; }
+    if ( v < min ) min = v;
+    if ( max < v ) max = v;
   });
   //console.log([min,max]);
   N = 5 + Math.floor( ( max - min ) / binsize );
@@ -41,8 +41,8 @@ var estimateInitialParam = function( bins ) {
   range = ( bins[bins.length-1][0] - bins[0][0] ) / 8.0,
   pos = parseInt( (maxPos - center) / range, 10 );
   //console.log( [center, range, pos, maxPos] );
-  if (1 <= pos)  { maxPos -= 500; }
-  if (pos <= -1) { maxPos += 500; }
+  if (1 <= pos)  maxPos -= 500;
+  if (pos <= -1) maxPos += 500;
   return [
     {m: maxPos - 500, s:30, p:1},
     {m: maxPos,       s:30, p:1},
@@ -122,7 +122,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
     var series = [];
 
     var makeGraphForSingleDataset = function( bins, model, pdf ) {
-      if ( !bins || !model || !pdf ) { return; }
+      if ( !bins || !model || !pdf ) return;
       var k;
       var min = bins[0][0], max = bins[bins.length-1][0], binsize = (max-min)/(bins.length-1);
       var pdist = [], means = [];
@@ -145,9 +145,9 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
 
     $scope.datasets.forEach(function( dataset, i ) {
       //console.log( $scope.datasets.length, dataset, i );
-      if ( !dataset.show ) { return; }
+      if ( !dataset.show ) return;
       var obj = makeGraphForSingleDataset( dataset.histogram.bins, dataset.model.params, dataset.model.pdf );
-      if ( !obj ) { return; }
+      if ( !obj ) return;
       var label = i + ': ' + dataset.name;
       // histogram
       series.push({ color: i, data: dataset.histogram.bins, bars: { show: true, barWidth: obj.binsize } });
@@ -169,7 +169,7 @@ app.controller('MainCtrl', ['$scope', 'filelistLoader', function( $scope, fileli
   };
 
   $scope.$watch('dropFiles', function( files ) {
-    if ( !files ) { return; }
+    if ( !files ) return;
     console.log('files droppped into the plot.', files );
     $scope.datasets = [];
     var filenames = filelistLoader.load(files, function( i, data ) {
@@ -194,7 +194,7 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
   };
 
   $scope.$watch('dataset.histogram.binsize', function( binsize ) {
-    if ( !binsize ) { return; }
+    if ( !binsize ) return;
     $scope.dataset.histogram.bins = getHistogram( binsize, $scope.dataset.samples );
   });
 
@@ -212,14 +212,14 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
   };
 
   $scope.$watch('dataset.samples', function( samples ) {
-    if ( !samples || samples.length < 3 ) { return; }
+    if ( !samples || samples.length < 3 ) return;
     console.log('samples updated: ', samples.slice(0, 5));
     $scope.dataset.histogram.binsize = (function( samples ) {
       var N = samples.length;
       var min = samples[0], max = samples[0];
       for (var i = 0; i < N; i++) {
-        if ( samples[i] < min ) { min = samples[i]; }
-        if ( samples[i] > max ) { max = samples[i]; }
+        if ( samples[i] < min ) min = samples[i];
+        if ( samples[i] > max ) max = samples[i];
       }
       return Math.round( (max - min) / Math.sqrt( N ) / 3 );
     })( samples );
@@ -231,10 +231,10 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
   //$scope.$watch('dataset.model.params', function( initParams ) { $scope.runEstimation( initParams, $scope.dataset.samples ); });
 
   $scope.$watch('dataset.filelist', function( filelist ) {
-    if ( !filelist ) { return; }
+    if ( !filelist ) return;
     console.log('filelist changed : ', filelist );
     $scope.dataset.name = filelistLoader.load( filelist, function( index, data ) {
-      if ( index !== 0 ) { return; }
+      if ( index !== 0 ) return;
       $scope.dataset.samples = data;
       $scope.$apply();
       console.log( index, $scope.dataset.samples.slice(0,5) );
@@ -244,7 +244,7 @@ app.controller('DataItemCtrl', ['$scope', 'filelistLoader', function( $scope, fi
   $scope.$on('plotclick', function( msg, arg ) {
     console.log('plotclick', msg, arg );
     $scope.initParams.forEach(function( m0, i ) {
-      if ( !m0.focus ) { return; }
+      if ( !m0.focus ) return;
       $scope.initParams[ i ].m = arg.x;
     });
   });
