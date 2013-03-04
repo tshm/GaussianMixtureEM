@@ -22,8 +22,8 @@ module.exports = function (grunt) {
     yeoman: yeomanConfig,
     watch: {
 			jade: {
-				files: '<%= yeoman.app %>/*.jade',
-				tasks: 'jade:html reload'
+				files: ['<%= yeoman.app %>/*.jade'],
+				tasks: ['jade:html']
 			},
       coffee: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
@@ -35,7 +35,7 @@ module.exports = function (grunt) {
       },
       livereload: {
         files: [
-          '<%= yeoman.app %>/{,*/}*.html',
+          '{.tmp,<%= yeoman.app %>}/{,*/}*.html',
           '{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
           '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg}'
@@ -115,12 +115,24 @@ module.exports = function (grunt) {
       }
     },
 		jade: {
-      options: {pretty: true},
       html: {
-        src: '<%= yeoman.app %>/index.jade',
-        dest: '.tmp/index.html'
+        options: {
+          pretty: true,
+          data: { debug: true }
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>',
+          src: '*.jade',
+          dest: '.tmp',
+          ext: '.html'
+        }]
       },
       dist: {
+        options: {
+          pretty: true,
+          data: { debug: false }
+        },
         src: '<%= yeoman.app %>/index.jade',
         dest: '<%= yeoman.app %>/index.html'
       }
@@ -315,40 +327,4 @@ module.exports = function (grunt) {
     grunt.log.writeln('offline build task complete.');
   });
 
-	grunt.registerMultiTask('jade', 'compile Jade files', function (arg) {
-    grunt.util = grunt.util || grunt.utils;
-    //var path = require('path');
-    //var helpers = require('grunt-lib-contrib').init(grunt);
-    //this.files = this.files || helpers.normalizeMultiTaskFiles(this.data, this.target);
-    //this.files = grunt.helper('normalizeMultiTaskFiles', this.data, this.target);
-
-		var options = this.options();
-		var data = this.data;
-		var debug = false;
-		if (debug) {
-			console.log({
-				//xx: grunt.file.expandMapping( this.files.src, this.files.dest, this.files ),
-        current: JSON.stringify( grunt.task.current ),
-				files: JSON.stringify( this.files ),
-				//src: this.files[0].src,
-				options: options,
-        data: JSON.stringify( data ),
-				self: this
-			});
-		}
-		var jade = require('jade');
-		//if (debug) console.log( this.files[0].src );
-		//if (debug) console.log( grunt.file.expand( this.files[0].src[0] ) );
-		this.files.forEach(function (file) {
-			//if (debug) console.log( grunt.file.expand( file.src ) );
-			//file.src = grunt.file.expand( file.src );
-			if ( debug ) { console.log( file ); }
-			var code = grunt.file.read(file.src);
-			//var options = grunt.util._.extend({filename: file}, options);
-			var html = jade.compile(code, options)({debug: arg!=='release'});
-			grunt.file.write(file.dest, html);
-      //grunt.log.writeln( html );
-		});
-		//lines = grunt.file.read(options.source).split(/\n/).map(function (line) {
-	});
 };
