@@ -1,5 +1,6 @@
 node_modules
 dist
-tmp
-temp
+.tmp
+.sass-cache
+app/components
 app/index.html

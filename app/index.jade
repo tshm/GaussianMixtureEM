@@ -28,8 +28,8 @@ body(ng-app='emjsApp')
 				install Google Chrome Frame
 			| to better experience this site.
 	//if lt IE 9
-		script(src='scripts/vendor/es5-shim.min.js')
-		script(src='scripts/vendor/json3.min.js')
+		script(src='components/es5-shim/es5-shim.min.js')
+		script(src='components/json3/lib/json3.min.js')
 	.container(ng-controller='MainCtrl',ng-init='debug = #{debug}')
 		h2 Expectation Maximization for Gaussian Mixture
 
@@ -55,8 +55,8 @@ body(ng-app='emjsApp')
 					.pull-right
 						label binsize:
 							input.input.input-small(type='text',ng-model='dataset.histogram.binsize')
-						button.btn.btn-small(ng-click='init_params.push({m:0,s:30,p:1,focus:true})') add cluster
-						input.btn.btn-small.btn-success(type='submit',ng-click='setInitialCondition(init_params)')
+						button.btn.btn-small(ng-click='initParams.push({m:0,s:30,p:1,focus:true})') add cluster
+						input.btn.btn-small.btn-success(type='submit',ng-click='setInitialCondition(initParams)')
 					table.table.table-striped.table-condensed
 						thead
 							tr
@@ -66,7 +66,7 @@ body(ng-app='emjsApp')
 								th result_s
 								th result_p
 						tbody
-							tr(ng-repeat='param in init_params')
+							tr(ng-repeat='param in initParams')
 								td
 									span.badge {{ $index }}
 								td
@@ -76,7 +76,7 @@ body(ng-app='emjsApp')
 								td {{ dataset.model.params[$index].s | number:0 }}
 								td {{ dataset.model.params[$index].p | number:2 }}
 					.span7(ng-show="debug") {{ dataset.samples.slice(0,10) | json }}
-					//div(ng-show="debug") init_params: {{ init_params | json }}
+					//div(ng-show="debug") initParams: {{ initParams | json }}
 				.span5(drop-area='dataset.filelist')
 					.span2
 						textarea.span2(arr-bind='dataset.samples', rows="7")
@@ -86,12 +86,14 @@ body(ng-app='emjsApp')
 
 	// build:js scripts/vendors.js
 	script(src='components/jquery/jquery.js')
-	script(src='scripts/vendor/angular.js')
+	script(src='components/angular/angular.js')
 	script(src='components/flot/jquery.flot.js')
+	// endbuild
+	// build:js(.tmp) scripts/GMEM.js
+	script(src='scripts/GMEM.js')
 	// endbuild
 	// build:js scripts/scripts.js
 	script(src='scripts/shim.js')
-	script(src='scripts/GMEM.js')
 	script(src='scripts/directives.js')
 	script(src='scripts/app.js')
 	// endbuild

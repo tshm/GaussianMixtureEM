@@ -82,11 +82,11 @@ class GMEM
 			return if ( !isFinite(@L) || Math.abs(@L - L_old) < 0.1 )
 		return
 
-	get_result: () ->
-		result_model = []
+	getResult: () ->
+		resultModel = []
 		for k in [0...@K]
-			result_model[k] = {m: @m[k], s: @s[k], p: @p[k]}
-		return {model: result_model, L: @L}
+			resultModel[k] = {m: @m[k], s: @s[k], p: @p[k]}
+		return {model: resultModel, L: @L}
 
 # export GMEM class
 this.GMEM = GMEM

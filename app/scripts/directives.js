@@ -2,10 +2,10 @@ var app = angular.module('emjsAppDirectives', []);
 
 app.directive('dropArea', function() {
   return {
-    scope: { files: "=dropArea" },
+    scope: { files: '=dropArea' },
     transclude: true,
     template: '<div ng-transclude></div>',
-    link: function( scope, elm, attrs ) {
+    link: function( scope, elm ) {
       elm.bind('dragover', function( event ) {
         event.stopPropagation();
         event.preventDefault();
@@ -25,7 +25,7 @@ app.directive('fileSelect', function() {
   var template = '<input type="file" multiple name="files" style="display:none"/>';
   return {
     scope: { files: '=fileSelect' },
-    link: function( scope, elem, attrs ) {
+    link: function( scope, elem ) {
       var selector = $( template );
       elem.append(selector);
       selector.bind('change', function( event ) {
@@ -49,9 +49,9 @@ app.directive('flot', function() {
   return {
     scope: { graphdata: '=flot', click: '&' },
     replace: false,
-    link: function( scope, elm, attrs ) {
+    link: function( scope, elm ) {
       scope.$watch('graphdata', function( data ) {
-        if ( !data.series || !data.options ) return;
+        if ( !data.series || !data.options ) { return; }
         //console.log(data.series, data.options);
         $.plot( elm, data.series, data.options );
       }, true);
@@ -77,7 +77,7 @@ app.directive('arrBind', function() {
   return {
     restrict: 'A',
     scope: { array: '=arrBind' },
-    link: function( scope, elem, attrs ) {
+    link: function( scope, elem ) {
       scope.$watch('array', function( array ) {
         elem.val( array ? array.join('\n') : '' );
       }, true);

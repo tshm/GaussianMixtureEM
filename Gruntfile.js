@@ -1,218 +1,282 @@
-/*global require:true, process:true, console:true */
-module.exports = function( grunt ) {
-  'use strict';
+'use strict';
+var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
+var mountFolder = function (connect, dir) {
+  return connect.static(require('path').resolve(dir));
+};
 
-	//grunt.loadNpmTasks('grunt-contrib-jade');
+module.exports = function (grunt) {
+  // load all grunt tasks
+  require('matchdep').filterDev('grunt-*').concat(['gruntacular']).forEach(grunt.loadNpmTasks);
 
-  //
-  // Grunt configuration:
-  //
-  // https://github.com/cowboy/grunt/blob/master/docs/getting_started.md
-  //
+  // configurable paths
+  var yeomanConfig = {
+    app: 'app',
+    dist: 'dist'
+  };
+
+  try {
+    yeomanConfig.app = require('./component.json').appPath || yeomanConfig.app;
+  } catch (e) {}
+
   grunt.initConfig({
-
-    // Project configuration
-    // ---------------------
-
-    // specify an alternate install location for Bower
-    bower: {
-      dir: 'app/components'
-    },
-
-    // Coffee to JS compilation
-    coffee: {
-      compile: {
-        files: {
-          'app/scripts/*.js': 'app/scripts/**/*.coffee',
-          'test/spec/*.js': 'test/spec/**/*.coffee'
-        }
-      }
-    },
-
-    // compile .scss/.sass to .css using Compass
-    compass: {
-      dist: {
-        // http://compass-style.org/help/tutorials/configuration-reference/#configuration-properties
-        options: {
-          css_dir: 'temp/styles',
-          sass_dir: 'app/styles',
-          images_dir: 'app/images',
-          javascripts_dir: 'temp/scripts',
-          force: true
-        }
-      }
-    },
-
-    // generate application cache manifest
-    manifest:{
-      dest: ''
-    },
-
-    // default watch configuration
+    yeoman: yeomanConfig,
     watch: {
 			jade: {
-				files: 'app/*.jade',
-				tasks: 'jade reload'
+				files: '<%= yeoman.app %>/*.jade',
+				tasks: 'jade:html reload'
 			},
       coffee: {
-        files: 'app/scripts/**/*.coffee',
-        tasks: 'coffee reload'
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
+        tasks: ['coffee:dist']
       },
-      compass: {
-        files: [
-          'app/styles/**/*.{scss,sass}'
-        ],
-        tasks: 'compass reload'
+      coffeeTest: {
+        files: ['test/spec/{,*/}*.coffee'],
+        tasks: ['coffee:test']
       },
-      reload: {
+      livereload: {
         files: [
-          'app/*.html',
-          'app/styles/**/*.css',
-          'app/scripts/**/*.js',
-          'app/views/**/*.html',
-          'app/images/**/*'
+          '<%= yeoman.app %>/{,*/}*.html',
+          '{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
+          '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
+          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg}'
         ],
-        tasks: 'reload'
+        tasks: ['livereload']
       }
-		},
-
-    // default lint configuration, change this to match your setup:
-    // https://github.com/cowboy/grunt/blob/master/docs/task_lint.md#lint-built-in-task
-    lint: {
-      files: [
-        'Gruntfile.js',
-        'app/scripts/**/*.js',
-        'spec/**/*.js'
-      ]
     },
-
-    // specifying JSHint options and globals
-    // https://github.com/cowboy/grunt/blob/master/docs/task_lint.md#specifying-jshint-options-and-globals
+    connect: {
+      livereload: {
+        options: {
+          port: 9000,
+          // Change this to '0.0.0.0' to access the server from outside.
+          hostname: 'localhost',
+          middleware: function (connect) {
+            return [
+              lrSnippet,
+              mountFolder(connect, '.tmp'),
+              mountFolder(connect, yeomanConfig.app)
+            ];
+          }
+        }
+      },
+      test: {
+        options: {
+          port: 9000,
+          middleware: function (connect) {
+            return [
+              mountFolder(connect, '.tmp'),
+              mountFolder(connect, 'test')
+            ];
+          }
+        }
+      }
+    },
+    open: {
+      server: {
+        url: 'http://localhost:<%= connect.livereload.options.port %>'
+      }
+    },
+    clean: {
+      dist: ['.tmp', '<%= yeoman.dist %>/*'],
+      server: '.tmp'
+    },
     jshint: {
       options: {
-        curly: true,
-        eqeqeq: true,
-        immed: true,
-        latedef: true,
-        newcap: true,
-        noarg: true,
-        sub: true,
-        undef: true,
-        boss: true,
-        eqnull: true,
-        browser: true
+        jshintrc: '.jshintrc'
       },
-      globals: {
-        angular: true
+      all: [
+        '<%= yeoman.app %>/scripts/{,*/}*.js'
+      ]
+    },
+    testacular: {
+      unit: {
+        configFile: 'testacular.conf.js',
+        singleRun: true
       }
     },
-
-    // Build configuration
-    // -------------------
-
-    // the staging directory used during the process
-    staging: 'temp',
-    // final build output
-    output: 'dist',
-
-    mkdirs: {
-      staging: 'app/'
+    coffee: {
+      dist: {
+        files: [{
+          // rather than compiling multiple files here you should
+          // require them into your main .coffee file
+          expand: true,
+          cwd: '<%= yeoman.app %>/scripts',
+          src: '*.coffee',
+          dest: '.tmp/scripts',
+          ext: '.js'
+        }]
+      },
+      test: {
+        files: [{
+          expand: true,
+          cwd: '.tmp/spec',
+          src: '*.coffee',
+          dest: 'test/spec'
+        }]
+      }
     },
-
-    // Below, all paths are relative to the staging directory, which is a copy
-    // of the app/ directory. Any .gitignore, .ignore and .buildignore file
-    // that might appear in the app/ tree are used to ignore these values
-    // during the copy process.
-
-    // concat css/**/*.css files, inline @import, output a single minified css
-    css: {
-      'styles/main.css': ['styles/**/*.css']
+		jade: {
+      options: {pretty: true},
+      html: {
+        src: '<%= yeoman.app %>/index.jade',
+        dest: '.tmp/index.html'
+      },
+      dist: {
+        src: '<%= yeoman.app %>/index.jade',
+        dest: '<%= yeoman.app %>/index.html'
+      }
+		},
+    concat: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/scripts/scripts.js': [
+            '.tmp/scripts/*.js',
+            '<%= yeoman.app %>/scripts/*.js'
+          ]
+        }
+      }
     },
-
-    // renames JS/CSS to prepend a hash of their contents for easier
-    // versioning
-    rev: {
-      js: 'scripts/**/*.js',
-      css: 'styles/**/*.css',
-      img: 'images/**'
+    useminPrepare: {
+      html: '<%= yeoman.app %>/index.html',
+      options: {
+        dest: '<%= yeoman.dist %>'
+      }
     },
-
-    // usemin handler should point to the file containing
-    // the usemin blocks to be parsed
-    'usemin-handler': {
-      html: 'index.html'
-    },
-
-    // update references in HTML/CSS to revved files
     usemin: {
-      html: ['**/*.html'],
-      css: ['**/*.css']
+      html: ['<%= yeoman.dist %>/{,*/}*.html'],
+      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
+      options: {
+        dirs: ['<%= yeoman.dist %>']
+      }
     },
-
-    // HTML minification
-    html: {
-      files: ['**/*.html']
+    imagemin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>/images',
+          src: '{,*/}*.{png,jpg,jpeg}',
+          dest: '<%= yeoman.dist %>/images'
+        }]
+      }
     },
-
-    // Optimizes JPGs and PNGs (with jpegtran & optipng)
-    img: {
-      dist: '<config:rev.img>'
+    cssmin: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/styles/main.css': [
+            '.tmp/styles/{,*/}*.css',
+            '<%= yeoman.app %>/styles/{,*/}*.css'
+          ]
+        }
+      }
     },
-
-    // rjs configuration. You don't necessarily need to specify the typical
-    // `path` configuration, the rjs task will parse these values from your
-    // main module, using http://requirejs.org/docs/optimization.html#mainConfigFile
-    //
-    // name / out / mainConfig file should be used. You can let it blank if
-    // you're using usemin-handler to parse rjs config from markup (default
-    // setup)
-    rjs: {
-      // no minification, is done by the min task
-      optimize: 'none',
-      baseUrl: './scripts',
-      wrap: true
+    htmlmin: {
+      dist: {
+        options: {
+          /*removeCommentsFromCDATA: true,
+          // https://github.com/yeoman/grunt-usemin/issues/44
+          //collapseWhitespace: true,
+          collapseBooleanAttributes: true,
+          removeAttributeQuotes: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeOptionalTags: true*/
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>',
+          src: ['*.html', 'views/*.html'],
+          dest: '<%= yeoman.dist %>'
+        }]
+      }
     },
-
+    cdnify: {
+      dist: {
+        html: ['<%= yeoman.dist %>/*.html']
+      }
+    },
+    ngmin: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.dist %>/scripts',
+          src: '*.js',
+          dest: '<%= yeoman.dist %>/scripts'
+        }]
+      }
+    },
+    uglify: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/scripts/scripts.js': [
+            '<%= yeoman.dist %>/scripts/scripts.js'
+          ],
+        }
+      }
+    },
     offline: {
       options: {
         dest: 'index_offline.html',
         source: 'index.html'
       }
     },
-
-		jade: {
-      options: {pretty: true},
-      html: {
-        src: 'app/index.jade', dest: 'app/index.html'
-      }
-		}
-  /*
-		jade: {
-      options: {
-        data: {
-          debug: true
-        }
-      },
-      html: {
+    copy: {
+      dist: {
         files: [{
           expand: true,
-          cwd: 'app',
-          src: '*.jade',
-          dest: 'app',
-          ext: '.html'
+          dot: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          src: [
+            '*.{ico,txt}',
+            '.htaccess',
+            'components/**/*'
+          ]
         }]
       }
-		}
-    jade: {
-      compile: {
-        files: {
-          'app/*.html': 'app/*.jade'
-        }
-      }
     }
-		*/
-
   });
+
+  grunt.renameTask('regarde', 'watch');
+  // remove when mincss task is renamed
+  grunt.renameTask('mincss', 'cssmin');
+
+  grunt.registerTask('server', [
+    'clean:server',
+    'jade:html',
+    'coffee:dist',
+    'livereload-start',
+    'connect:livereload',
+    'open',
+    'watch'
+  ]);
+
+  grunt.registerTask('test', [
+    'clean:server',
+    'jade:html',
+    'coffee',
+    'connect:test',
+    'testacular'
+  ]);
+
+  grunt.registerTask('build', [
+    'clean:dist',
+    'jade:dist:release',
+    'jshint',
+    //'test',
+    'coffee',
+    'useminPrepare',
+    'imagemin',
+    'cssmin',
+    'htmlmin',
+    'concat',
+    'copy',
+    'cdnify',
+    'usemin',
+    'ngmin',
+    'uglify'
+  ]);
+
+  grunt.registerTask('default', ['build']);
 
   // Alias the `test` task to run `testacular` instead
   grunt.registerTask('test', 'run the testacular test driver', function () {
@@ -223,18 +287,15 @@ module.exports = function( grunt ) {
     });
   });
 
-  grunt.renameTask('build', 'buildOrig');
-
-  grunt.registerTask('build', ['jade:html:release', 'buildOrig']);
-
   grunt.registerTask('buildall', ['build', 'offline']);
 
-  grunt.registerTask('offline', 'build offline page', function() {
+  grunt.registerTask('offline', 'build offline page', function () {
     process.chdir('dist');
     var lines,
       options = this.options(),
       pattern = new RegExp('<(script|link).*(src|href)="([^"]+)"[^>]*>(.*)', 'i');
-    lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
+    console.log( options );
+    lines = grunt.file.read(options.source).split(/\n/).map(function (line) {
       var contents, file, post, match;
       match = line.match(pattern);
       if (!(match && match[1] && match[3])) {
@@ -244,19 +305,19 @@ module.exports = function( grunt ) {
       file = match[3];
       post = match[4];
       contents = grunt.file.read(file);
-      if (match[1] === "link") {
-        return "<style>" + contents + "</style>" + post;
+      if (match[1] === 'link') {
+        return '<style>' + contents + '</style>' + post;
       } else {
-        return "<script>" + contents + post;
+        return '<script>' + contents + post;
       }
     });
-    grunt.file.write(options.dest, lines.join("\n"));
+    grunt.file.write(options.dest, lines.join('\n'));
     grunt.log.writeln('offline build task complete.');
   });
 
-	grunt.registerMultiTask('jade', 'compile Jade files', function(arg) {
+	grunt.registerMultiTask('jade', 'compile Jade files', function (arg) {
     grunt.util = grunt.util || grunt.utils;
-    var path = require('path');
+    //var path = require('path');
     //var helpers = require('grunt-lib-contrib').init(grunt);
     //this.files = this.files || helpers.normalizeMultiTaskFiles(this.data, this.target);
     //this.files = grunt.helper('normalizeMultiTaskFiles', this.data, this.target);
@@ -278,16 +339,16 @@ module.exports = function( grunt ) {
 		var jade = require('jade');
 		//if (debug) console.log( this.files[0].src );
 		//if (debug) console.log( grunt.file.expand( this.files[0].src[0] ) );
-		this.files.forEach(function(file) {
+		this.files.forEach(function (file) {
 			//if (debug) console.log( grunt.file.expand( file.src ) );
 			//file.src = grunt.file.expand( file.src );
-			if (debug) console.log( file );
+			if ( debug ) { console.log( file ); }
 			var code = grunt.file.read(file.src);
 			//var options = grunt.util._.extend({filename: file}, options);
-			var html = jade.compile(code, options)({debug: arg!=="release"});
+			var html = jade.compile(code, options)({debug: arg!=='release'});
 			grunt.file.write(file.dest, html);
       //grunt.log.writeln( html );
 		});
-		//lines = grunt.file.read(options.source).split(/\n/).map(function(line) {
+		//lines = grunt.file.read(options.source).split(/\n/).map(function (line) {
 	});
 };
