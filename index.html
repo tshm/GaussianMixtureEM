@@ -1,0 +1,84 @@
+<!DOCTYPE html><!--[if lt IE 7]><html class='no-js lt-ie9 lt-ie8 lt-ie7'><![endif]--><!--[if IE 7]><html class='no-js lt-ie9 lt-ie8'><![endif]--><!--[if IE 8]><html class='no-js lt-ie9'><![endif]--><!--[if gt IE 8]><html class='no-js'><![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>EM for Gaussian Mixture</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body ng-app="emjsApp"><!--[if lt IE 7]>
+  <p class="chromeframe">You are using an outdated browser.<a href="http://browsehappy.com/">Upgrade your browser today</a>or<a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a>to better experience this site.</p><![endif]--><!--[if lt IE 9]>
+  <script src="components/es5-shim/es5-shim.min.js"></script>
+  <script src="components/json3/lib/json3.min.js"></script><![endif]-->
+  <div ng-controller="MainCtrl" ng-init="debug = false" class="container">
+    <h2>Expectation Maximization for Gaussian Mixture</h2>
+    <div class="row">
+      <div class="span8">
+        <div ng-show="calculating" class="loading"></div>
+        <div ng-hide="calculating" drop-area="dropFiles">
+          <div id="plot" flot="graphdata" click="plotclick(args)"></div>
+        </div>
+      </div>
+      <div ng-show="debug" class="span4">{{ datasets[0].samples.slice(0,5) | json }}</div>
+    </div>
+    <div ng-controller="DataItemCtrl" ng-repeat="dataset in datasets" class="row">
+      <div style="border-color: {{ dataset.color }}" class="span12 leftm"><span class="btn-group"><a ng-click="hide=!hide" ng-class="{opened: hide, closed: !hide}" class="btn btn-mini accordion-header">{{ $index }} : {{ dataset.name }}</a>
+          <!--a.btn.btn-mini(title="toggle graph",ng-click="dataset.show=!dataset.show") {{ dataset.show && "▂" || "⬜" }}--><a title="toggle graph" ng-click="dataset.show=!dataset.show" ng-class="dataset.show &amp;&amp; &quot;btn-inverse&quot;" class="btn btn-mini">{{ dataset.show && "hide" || "show" }}</a><a title="insert dataset" ng-click="addDataSet($index)" class="btn btn-mini btn-success">+</a><a title="delete dataset" ng-click="datasets.splice($index,1)" ng-hide="datasets.length==1" class="btn btn-mini btn-danger">&times;</a></span></div>
+      <div ng-hide="hide" class="form form-inline">
+        <div class="span7">
+          <div class="pull-right">
+            <label>binsize:
+              <input type="text" ng-model="dataset.histogram.binsize" class="input input-small">
+            </label>
+            <button ng-click="initParams.push({m:0,s:30,p:1,focus:true})" class="btn btn-small">add cluster</button>
+            <input type="submit" ng-click="setInitialCondition(initParams)" class="btn btn-small btn-success">
+          </div>
+          <table class="table table-striped table-condensed">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>init_m</th>
+                <th>result_m</th>
+                <th>result_s</th>
+                <th>result_p</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="param in initParams">
+                <td><span class="badge">{{ $index }}</span></td>
+                <td>
+                  <input type="number" ng-model="param.m" focus="param.focus" class="input input-small"><a ng-click="remove($index)" href="#">&times;</a>
+                </td>
+                <td>{{ dataset.model.params[$index].m | number:0 }}</td>
+                <td>{{ dataset.model.params[$index].s | number:0 }}</td>
+                <td>{{ dataset.model.params[$index].p | number:2 }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div ng-show="debug" class="span7">{{ dataset.samples.slice(0,10) | json }}</div>
+          <!--div(ng-show="debug") initParams: {{ initParams | json }}-->
+        </div>
+        <div drop-area="dataset.filelist" class="span5">
+          <div class="span2">
+            <textarea arr-bind="dataset.samples" rows="7" class="span2"></textarea>
+          </div>
+          <div class="span2">
+            <button file-select="dataset.filelist" class="btn btn-primary">open file</button>
+            <button ng-click="sort()" class="btn">&harr; sort</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="scripts/vendors.js"></script>
+  <script src="scripts/GMEM.js"></script>
+  <script src="scripts/scripts.js"></script>
+  <!-- Google Analytics-->
+  <script>
+    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+     g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+     s.parentNode.insertBefore(g,s)}(document,'script'));
+  </script>
+</body>
