@@ -3,3 +3,5 @@ node_modules
 .sass-cache
 app/components
 app/index.html
+*.vim
+elm-stuff
